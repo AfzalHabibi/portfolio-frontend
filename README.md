@@ -11,9 +11,10 @@ portfolio/
 │   │   ├── AdminNav.tsx        # Navigation for admin panel
 │   │   └── LoginForm.tsx       # Login form for admin
 │   ├── pages/                  # Page components for routes
-│   │   ├── public/             # Public portfolio pages
+│   │   ├── public_portfolio/   # Public portfolio pages
 │   │   │   ├── Home.tsx        # Portfolio homepage
 │   │   │   ├── Projects.tsx    # Projects list page
+│   │   │   ├── Project_detail.tsx    # Projects list page
 │   │   │   └── Contact.tsx     # Contact page (placeholder)
 │   │   ├── admin/              # Admin panel pages
 │   │   │   ├── Dashboard.tsx   # Admin dashboard
@@ -25,7 +26,7 @@ portfolio/
 │   │   │   ├── settingsSlice.ts # Manage site settings
 │   │   │   ├── authSlice.ts    # Manage admin login state
 │   │   │   └── apiSlice.ts     # Placeholder for future API
-│   │   └── index.ts            # Store configuration
+│   │   └── store.ts            # Store configuration
 │   ├── types/                  # TypeScript interfaces
 │   │   └── index.ts            # Types for projects, settings, auth
 │   ├── App.tsx                 # Main app with routes
