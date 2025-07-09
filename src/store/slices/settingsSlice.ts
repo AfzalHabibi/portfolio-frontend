@@ -8,12 +8,12 @@ interface SettingsState {
 }
 
 const hardcodedSettings: SiteSettings = {
-  name: 'John Doe',
+  name: 'Afzal Habib',
   title: 'Full Stack Developer',
   description: 'Professional MERN Stack Developer with expertise in React, Node.js, PHP, Laravel, and React Native. Passionate about creating innovative web and mobile solutions.',
-  email: 'john.doe@example.com',
-  phone: '+1 (555) 123-4567',
-  location: 'New York, USA',
+  email: 'afzalhaabib786@gmail.com',
+  phone: '03231103430',
+  location: 'Harbanspura Lahore',
   socialLinks: {
     linkedin: 'https://linkedin.com/in/johndoe',
     github: 'https://github.com/johndoe',

@@ -189,15 +189,6 @@ const TestimonialSlider: React.FC<TestimonialSliderProps> = ({
         ))}
       </div>
 
-      {/* Progress Bar */}
-      <div className="slider-progress">
-        <div
-          className="slider-progress-bar"
-          style={{
-            width: `${((currentSlide + 1) / testimonials.length) * 100}%`,
-          }}
-        />
-      </div>
     </div>
   )
 }
