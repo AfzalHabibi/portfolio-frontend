@@ -36,7 +36,7 @@ const hardcodedProjects: Project[] = [
       '/placeholder.svg?height=400&width=600',
       '/placeholder.svg?height=400&width=600'
     ],
-    mainImage: '/placeholder.svg?height=300&width=500',
+    mainImage: 'https://thumbs.dreamstime.com/b/abstract-design-website-hero-section-background-features-vibrant-blue-fluid-lines-geometric-shapes-circles-351935047.jpg',
     demoUrl: 'https://demo-ecommerce.com',
     githubUrl: 'https://github.com/username/ecommerce',
     clientRemarks: 'Excellent work! The platform exceeded our expectations with its clean design and robust functionality. The admin dashboard is particularly impressive.',
@@ -69,7 +69,7 @@ const hardcodedProjects: Project[] = [
       '/placeholder.svg?height=400&width=600',
       '/placeholder.svg?height=400&width=600'
     ],
-    mainImage: '/placeholder.svg?height=300&width=500',
+    mainImage: '',
     demoUrl: 'https://demo-taskmanager.com',
     githubUrl: 'https://github.com/username/taskmanager',
     clientRemarks: 'The real-time collaboration features work flawlessly. Our team productivity has increased significantly since implementing this solution.',
@@ -102,7 +102,7 @@ const hardcodedProjects: Project[] = [
       '/placeholder.svg?height=400&width=600',
       '/placeholder.svg?height=400&width=600'
     ],
-    mainImage: '/placeholder.svg?height=300&width=500',
+    mainImage: '',
     demoUrl: 'https://demo-restaurant-app.com',
     githubUrl: 'https://github.com/username/restaurant-app',
     clientRemarks: 'Outstanding mobile app development! The user experience is smooth and our customers love the convenience. Orders have increased by 40%.',
@@ -135,7 +135,7 @@ const hardcodedProjects: Project[] = [
       '/placeholder.svg?height=400&width=600',
       '/placeholder.svg?height=400&width=600'
     ],
-    mainImage: '/placeholder.svg?height=300&width=500',
+    mainImage: '',
     demoUrl: 'https://demo-lms.com',
     githubUrl: 'https://github.com/username/lms',
     clientRemarks: 'The LMS platform has transformed our training programs. The analytics and reporting features provide valuable insights into student performance.',
@@ -168,7 +168,7 @@ const hardcodedProjects: Project[] = [
       '/placeholder.svg?height=400&width=600',
       '/placeholder.svg?height=400&width=600'
     ],
-    mainImage: '/placeholder.svg?height=300&width=500',
+    mainImage: '',
     demoUrl: 'https://demo-realestate.com',
     githubUrl: 'https://github.com/username/realestate',
     clientRemarks: 'Exceptional platform! The virtual tour integration and map features have significantly improved our property showcase capabilities.',
@@ -201,7 +201,7 @@ const hardcodedProjects: Project[] = [
       '/placeholder.svg?height=400&width=600',
       '/placeholder.svg?height=400&width=600'
     ],
-    mainImage: '/placeholder.svg?height=300&width=500',
+    mainImage: '',
     demoUrl: 'https://demo-healthcare.com',
     githubUrl: 'https://github.com/username/healthcare',
     clientRemarks: 'The system has revolutionized our practice management. The telemedicine feature was especially valuable during the pandemic.',

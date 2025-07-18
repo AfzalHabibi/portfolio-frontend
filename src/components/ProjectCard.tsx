@@ -10,9 +10,9 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, index = 0 }) => {
   return (
     <div className="col-lg-4 col-md-6 mb-4 animate-stagger" style={{ "--stagger-delay": index } as React.CSSProperties}>
-      <div className="project-card card-hover-effect">
+      <div className="project-card card-hover-effect-2">
         <div className="position-relative overflow-hidden">
-          <img src={project.mainImage || "/placeholder.svg"} alt={project.title} className="project-image" />
+          <img src={project.mainImage || "https://thumbs.dreamstime.com/b/abstract-design-website-hero-section-background-features-vibrant-blue-fluid-lines-geometric-shapes-circles-351935047.jpg"} alt={project.title} className="project-image" />
           <div className="position-absolute top-0 end-0 p-3">
             <span className="badge bg-primary">{project.category}</span>
           </div>

@@ -1,5 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
 
 :root {
   /* Primary Colors from first image */
@@ -65,9 +64,14 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-secondary);
 }
-main{
+
+main {
   padding: 5rem 0 3rem 0;
 }
+.text-muted{
+  color: var(--text-muted) !important;
+}
+
 /* Loading Spinner */
 .loader {
   display: flex;
@@ -97,7 +101,6 @@ main{
 
 /* Navigation Styles */
 .navbar-custom {
-  /* background: rgba(15, 15, 35, 0.95); */
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 0;
@@ -152,7 +155,9 @@ main{
   background: var(--gradient-primary);
   border: none;
   padding: 12px 30px;
-  border-radius: 50px;
+  border-radius: 0.25rem;
+  border-bottom-left-radius: 1rem;
+  border-top-right-radius: 1rem;
   font-weight: 600;
   color: white;
   text-decoration: none;
@@ -189,7 +194,9 @@ main{
   color: var(--accent-primary);
   background: transparent;
   padding: 12px 30px;
-  border-radius: 50px;
+  border-radius: 0.25rem;
+    border-bottom-left-radius: 1rem;
+    border-top-right-radius: 1rem;
   font-weight: 600;
   text-decoration: none;
   display: inline-block;
@@ -197,6 +204,7 @@ main{
   position: relative;
   overflow: hidden;
 }
+
 .btn-outline-custom::before {
   content: "";
   position: absolute;
@@ -212,6 +220,7 @@ main{
 .btn-outline-custom:hover::before {
   left: 0;
 }
+
 .btn-outline-custom:hover {
   background: var(--accent-primary);
   color: white;
@@ -521,7 +530,7 @@ main{
 }
 
 .custom-card:hover {
-  transform: translateY(-15px) rotateX(5deg) rotateY(5deg);
+  /* transform: translateY(-15px) rotateX(5deg) rotateY(5deg); */
   box-shadow: var(--shadow-intense), var(--shadow-glow);
   border-color: transparent;
 }
@@ -537,7 +546,7 @@ main{
 
 /* Card content animation */
 .custom-card:hover .card-content {
-  transform: translateZ(20px);
+  /* transform: translateZ(20px); */
 }
 
 .card-content {
@@ -619,40 +628,6 @@ main{
 }
 
 /* Enhanced Project Card Animations */
-.project-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  overflow: hidden;
-  transition: var(--transition-bounce);
-  height: 100%;
-  position: relative;
-  cursor: pointer;
-  transform-style: preserve-3d;
-}
-
-.project-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--gradient-primary);
-  opacity: 0;
-  transition: var(--transition-fast);
-  z-index: 1;
-}
-
-.project-card:hover {
-  transform: translateY(-20px) rotateX(10deg);
-  box-shadow: var(--shadow-intense), var(--shadow-glow);
-  border-color: var(--accent-primary);
-}
-
-.project-card:hover::before {
-  opacity: 0.05;
-}
 
 .project-image {
   width: 100%;
@@ -663,10 +638,10 @@ main{
   z-index: 2;
 }
 
-.project-card:hover .project-image {
+/* .project-card:hover .project-image {
   transform: scale(1.1);
   filter: brightness(1.1) contrast(1.1);
-}
+} */
 
 .project-content {
   padding: 1.5rem;
@@ -675,9 +650,9 @@ main{
   transition: var(--transition-fast);
 }
 
-.project-card:hover .project-content {
+/* .project-card:hover .project-content {
   transform: translateZ(10px);
-}
+} */
 
 .project-title {
   font-family: "Poppins", sans-serif;
@@ -703,9 +678,36 @@ main{
   transition: var(--transition-fast);
 }
 
+/* .project-card:hover .project-description {
+  color: var(--text-secondary);
+} */
+
+/* new style for project card */
+.project-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  transition: var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+.project-card:hover {
+  box-shadow: var(--shadow-heavy), var(--shadow-glow);
+  border-color: var(--accent-primary);
+}
+
+
+.project-card:hover .project-title {
+  color: var(--text-primary);
+}
+
 .project-card:hover .project-description {
   color: var(--text-secondary);
 }
+/* new style for project card */
 
 .project-tech {
   display: flex;
