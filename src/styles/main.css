@@ -5,8 +5,10 @@
   --primary-bg: #0f0f23;
   --secondary-bg: #1a1a2e;
   --card-bg: #16213e;
-  --accent-primary: #ff283a;
-  --accent-secondary: #e94560;
+  /* --accent-primary: #ff283a; */
+  /* --accent-secondary: #e94560; */
+  --accent-primary: #a32b3f;
+  --accent-secondary: #0d6efd;
 
   /* Text Colors */
   --text-primary: #ffffff;
@@ -21,10 +23,10 @@
 
   /* Shadows */
   --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.15);
-  --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.2);
-  --shadow-glow: 0 0 30px rgba(255, 107, 53, 0.3);
-  --shadow-intense: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 10px 20px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 15px rgba(255, 107, 53, 0.1);
+  --shadow-intense: 0 20px 30px rgba(0, 0, 0, 0.4);
 
   /* Transitions */
   --transition-fast: all 0.3s ease-in-out;

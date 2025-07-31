@@ -36,7 +36,7 @@ export interface ContactForm {
   name: string;
   email: string;
   subject: string;
-  message: string;
+  message: string;  
 }
 
 export interface SiteSettings {
