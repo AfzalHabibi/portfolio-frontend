@@ -27,7 +27,7 @@ const NavBar: React.FC = () => {
     <nav className={`navbar navbar-expand-lg navbar-custom fixed-top ${isScrolled ? "scrolled" : ""}`}>
       <div className="container">
         <Link className="navbar-brand" to="/">
-          {settings.name}
+          <img src="./images/main-logo.png" width={70} alt="" />
         </Link>
 
         <button

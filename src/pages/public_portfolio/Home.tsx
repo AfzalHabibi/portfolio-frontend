@@ -143,10 +143,11 @@ const Home: React.FC = () => {
               <div className="text-center">
                 <div className="position-relative">
                   <img
-                    src="/placeholder.svg?height=500&width=400"
+                    src="https://lh3.googleusercontent.com/a/ACg8ocLwG3d6nKX6VIRpbRqwXuDVu9VBsbiHutLzRWQ5zGTuvV2gyupE=s288-c-no"
                     alt="Profile"
-                    className="img-fluid rounded-3 shadow-lg"
-                    style={{ maxWidth: "400px" }}
+                    className=" rounded-3 shadow-lg"
+                    width={400}
+                    style={{ maxWidth: "450px" }}
                   />
                   <div className="position-absolute top-0 start-0 w-100 h-100 bg-gradient rounded-3 opacity-25"></div>
                 </div>

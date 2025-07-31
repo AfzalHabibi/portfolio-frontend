@@ -5,7 +5,7 @@
   --primary-bg: #0f0f23;
   --secondary-bg: #1a1a2e;
   --card-bg: #16213e;
-  --accent-primary: #ff6b35;
+  --accent-primary: #ff283a;
   --accent-secondary: #e94560;
 
   /* Text Colors */
@@ -16,7 +16,7 @@
   /* Additional Colors */
   --border-color: #233554;
   --hover-bg: #233554;
-  --gradient-primary: linear-gradient(135deg, #ff6b35 0%, #e94560 100%);
+  --gradient-primary: linear-gradient(135deg, var(--accent-primary) 0%, #e94560 100%);
   --gradient-secondary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 
   /* Shadows */
@@ -71,7 +71,10 @@ main {
 .text-muted{
   color: var(--text-muted) !important;
 }
-
+button{
+  outline: none !important;
+  box-shadow: none !important;
+}
 /* Loading Spinner */
 .loader {
   display: flex;
@@ -103,7 +106,7 @@ main {
 .navbar-custom {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
-  padding: 1rem 0;
+  padding: 0;
   transition: var(--transition-fast);
 }
 
@@ -123,7 +126,7 @@ main {
 .navbar-nav .nav-link {
   color: var(--text-secondary) !important;
   font-weight: 500;
-  margin: 0 0.5rem;
+  margin: 0 0.5rem !important;
   transition: var(--transition-fast);
   position: relative;
 }
@@ -986,11 +989,11 @@ main {
 }
 
 .slider-nav-prev {
-  left: -25px;
+  left: 15px;
 }
 
 .slider-nav-next {
-  right: -25px;
+  right: 15px;
 }
 
 /* Play/Pause Button */

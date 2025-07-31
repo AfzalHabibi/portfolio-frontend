@@ -164,9 +164,9 @@ const ProjectDetail: React.FC = () => {
                   </div>
                   <div className="mb-3">
                     <strong>Technologies:</strong>
-                    <div className="mt-2">
+                    <div className="mt-2 d-flex flex-wrap gap-1">
                       {project.technologies.map((tech, index) => (
-                        <span key={index} className="tech-tag me-1 mb-1">{tech}</span>
+                        <span key={index} className="tech-tag mb-1">{tech}</span>
                       ))}
                     </div>
                   </div>
