@@ -7,7 +7,7 @@
   --card-bg: #16213e;
   /* --accent-primary: #ff283a; */
   /* --accent-secondary: #e94560; */
-  --accent-primary: #a32b3f;
+  --accent-primary: #a53b4c;
   --accent-secondary: #0d6efd;
 
   /* Text Colors */
@@ -600,7 +600,7 @@ button{
 .skill-item:hover .skill-icon {
   transform: scale(1.2) rotateY(360deg);
   color: var(--accent-primary);
-  text-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
 }
 
 .skill-icon {
