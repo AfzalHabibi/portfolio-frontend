@@ -364,7 +364,7 @@ const Home: React.FC = () => {
 
           <div className="text-center">
             <p className="mb-0 text-muted">
-              © 2024 {settings.name}. All rights reserved. Built with ❤️ using React & TypeScript.
+              © {new Date().getFullYear()} {settings.name}. All rights reserved.
             </p>
           </div>
         </div>

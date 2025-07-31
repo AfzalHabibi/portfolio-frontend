@@ -15,14 +15,14 @@ const hardcodedSettings: SiteSettings = {
   phone: '03231103430',
   location: 'Harbanspura Lahore',
   socialLinks: {
-    linkedin: 'https://linkedin.com/in/johndoe',
-    github: 'https://github.com/johndoe',
-    twitter: 'https://twitter.com/johndoe',
-    instagram: 'https://instagram.com/johndoe',
-    behance: 'https://behance.net/johndoe',
-    dribbble: 'https://dribbble.com/johndoe',
+    linkedin: 'https://www.linkedin.com/in/afzal-habib-5298a0272/',
+    github: 'https://github.com/AfzalHabibi', 
+    twitter: 'https://x.com/AfzalHabib34',
+    instagram: 'https://www.instagram.com/afzalhabib786/',
+    behance: 'https://www.behance.net/afzalhabib',
+    dribbble: 'https://dribbble.com/Afzalhabib786',
   },
-  cvUrl: '/assets/john-doe-cv.pdf',
+  cvUrl: './afzal_habib_resume.pdf',
 };
 
 const initialState: SettingsState = {
