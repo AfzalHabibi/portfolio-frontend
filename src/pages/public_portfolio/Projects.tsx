@@ -2,23 +2,23 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
-import type { RootState } from "../../store/store"
+import { useProjects } from "../../hooks/useApi"
 import ProjectCard from "../../components/ProjectCard"
 import Loader from "../../components/Loader"
 
 const Projects: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("All")
-  const { projects } = useSelector((state: RootState) => state.projects)
+  const { projects, loading: projectsLoading } = useProjects()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [])
+    if (!projectsLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [projectsLoading])
 
   useEffect(() => {
     const observerOptions = {

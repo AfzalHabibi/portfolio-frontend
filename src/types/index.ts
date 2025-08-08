@@ -6,6 +6,7 @@ export interface Project {
   features: string[];
   technologies: string[];
   images: string[];
+  videos?: string[];
   mainImage: string;
   demoUrl?: string;
   githubUrl?: string;

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
+import { useSettings } from '../../hooks/useApi';
 import { ContactForm } from '../../types';
 import Loader from '../../components/Loader';
 
@@ -15,15 +14,16 @@ const Contact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const { settings } = useSelector((state: RootState) => state.settings);
+  const { settings, loading: settingsLoading } = useSettings();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (!settingsLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [settingsLoading]);
 
   useEffect(() => {
     const observerOptions = {

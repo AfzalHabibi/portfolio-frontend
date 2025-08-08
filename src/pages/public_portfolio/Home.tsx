@@ -3,8 +3,7 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { useSelector } from "react-redux"
-import type { RootState } from "../../store/store"
+import { useProjects, useSettings } from "../../hooks/useApi"
 import ProjectCard from "../../components/ProjectCard"
 import Loader from "../../components/Loader"
 import AnimatedText from "../../components/AnimatedText"
@@ -12,17 +11,18 @@ import TestimonialSlider from "../../components/TestimonialSlider"
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true)
-  const { projects } = useSelector((state: RootState) => state.projects)
-  const { settings } = useSelector((state: RootState) => state.settings)
+  const { projects, loading: projectsLoading } = useProjects()
+  const { settings, loading: settingsLoading } = useSettings()
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 1500)
-
-    return () => clearTimeout(timer)
-  }, [])
+    // Wait for both projects and settings to load
+    if (!projectsLoading && !settingsLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [projectsLoading, settingsLoading])
 
   useEffect(() => {
     const observerOptions = {

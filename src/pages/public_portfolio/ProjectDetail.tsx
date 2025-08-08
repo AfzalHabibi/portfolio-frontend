@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
+import { useProjects } from '../../hooks/useApi';
 import Loader from '../../components/Loader';
 
 const ProjectDetail: React.FC = () => {
@@ -9,17 +8,25 @@ const ProjectDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
-  const { projects } = useSelector((state: RootState) => state.projects);
+  const { projects, selectedProject, loadProjectById, loading: projectsLoading } = useProjects();
   
-  const project = projects.find(p => p.id === id);
+  // Use selectedProject if available, otherwise find from projects array
+  const project = selectedProject?.id === id ? selectedProject : projects.find(p => p.id === id);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    if (id && !project && !projectsLoading) {
+      loadProjectById(id);
+    }
+  }, [id, project, projectsLoading, loadProjectById]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => {
+    if (!projectsLoading && (project || projects.length > 0)) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [projectsLoading, project, projects]);
 
   useEffect(() => {
     const observerOptions = {

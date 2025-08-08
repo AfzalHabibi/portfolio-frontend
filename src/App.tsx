@@ -10,6 +10,9 @@ import Home from "./pages/public_portfolio/Home"
 import Projects from "./pages/public_portfolio/Projects"
 import ProjectDetail from "./pages/public_portfolio/ProjectDetail"
 import Contact from "./pages/public_portfolio/Contact"
+import Login from "./pages/admin/Login"
+import Dashboard from "./pages/admin/Dashboard"
+import AdminProjects from "./pages/admin/Projects"
 import "./styles/main.css"
 
 const App: React.FC = () => {
@@ -17,15 +20,30 @@ const App: React.FC = () => {
     <Provider store={store}>
       <Router>
         <div className="App">
-          <NavBar />
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/projects/:id" element={<ProjectDetail />} />
-              <Route path="/contact" element={<Contact />} />
-            </Routes>
-          </main>
+          <Routes>
+            {/* Public Portfolio Routes */}
+            <Route
+              path="/*"
+              element={
+                <>
+                  <NavBar />
+                  <main>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/projects" element={<Projects />} />
+                      <Route path="/projects/:id" element={<ProjectDetail />} />
+                      <Route path="/contact" element={<Contact />} />
+                    </Routes>
+                  </main>
+                </>
+              }
+            />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/projects" element={<AdminProjects />} />
+          </Routes>
         </div>
       </Router>
     </Provider>
