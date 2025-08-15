@@ -166,12 +166,6 @@ const Projects: React.FC = () => {
       setProjects((prev) => prev.filter((p) => p.id !== id))
     }
   }
-
-  const closeModal = () => {
-    setShowModal(false)
-    resetForm()
-  }
-
   return (
     <AdminLayout title="Projects Management">
       <div className="dashboard-content">

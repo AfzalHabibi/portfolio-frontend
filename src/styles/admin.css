@@ -663,6 +663,100 @@
 }
 /* /BUTTON STYLES */
 
+/* Custom Modal Styles */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.custom-modal {
+  position: relative;
+  background: #191d23;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+  min-width: 400px;
+  max-width: 600px;
+  max-height: 95vh;
+  overflow-y: auto;
+}
+
+.custom-modal::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-modal.modal-sm {
+  min-width: 300px !important;
+  max-width: 400px !important;
+}
+
+.custom-modal.modal-md {
+  min-width: 400px !important;
+  max-width: 600px !important;
+}
+
+.custom-modal.modal-lg {
+  min-width: 600px !important;
+  max-width: 800px !important;
+}
+
+.custom-modal.modal-xl {
+  min-width: 800px !important;
+  max-width: 1140px !important;
+}
+
+.custom-modal-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  color: #e0e0e0;
+}
+
+.custom-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #3a3f4a;
+}
+
+.custom-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--white-color);
+}
+
+.custom-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.custom-modal-body {
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.custom-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 1rem;
+  border-top: 1px solid #3a3f4a;
+}
+
+
+
 /* ==========================================================================
    LAYOUT STYLES
    ========================================================================== */
@@ -1338,6 +1432,7 @@
 }
 
 .admin-app .tab-button {
+  flex: 1;
   padding: 1rem 1.5rem;
   background: none;
   border: none;
@@ -1733,3 +1828,48 @@
   }
 }
 /* /RESPONSIVE DESIGN */
+
+
+/* Animation Styles */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-200px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-fade-from-top {
+  animation: fadeTop 0.4s ease-in-out;
+}
+

@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import AdminLayout from "./AdminLayout"
+import CustomModal from "../../components/CustomModal"
 
 interface Skill {
   id: string
@@ -255,188 +256,118 @@ const SkillsManager: React.FC = () => {
         </div>
 
         {/* Add/Edit Modal */}
-        {showModal && (
-          <div
-            style={{
-              position: "fixed",
-              top: "0",
-              left: "0",
-              right: "0",
-              bottom: "0",
-              background: "rgba(0, 0, 0, 0.7)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: "2000",
-              padding: "1rem",
-            }}
-          >
-            <div
-              style={{
-                background: "var(--card-bg)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "12px",
-                width: "100%",
-                maxWidth: "600px",
-                maxHeight: "90vh",
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <div
-                style={{
-                  padding: "1.5rem",
-                  borderBottom: "1px solid var(--border-color)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: "var(--text-primary)", margin: "0" }}>
-                  {editingSkill ? "Edit Skill" : "Add New Skill"}
-                </h5>
-                <button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--text-muted)",
-                    fontSize: "1.25rem",
-                    cursor: "pointer",
-                    padding: "0.5rem",
-                    borderRadius: "6px",
-                    transition: "var(--transition-fast)",
-                  }}
-                  onClick={() => {
-                    setShowModal(false)
-                    resetForm()
-                  }}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
+        <CustomModal
+          isOpen={showModal}
+          onClose={closeModal}
+          title={editingSkill ? "Edit Skill" : "Add New Skill"}
+          modalSize="modal-lg"
+          actions={
+            <button type="submit" className="custom-primary-btn" form="skill-form">
+              {editingSkill ? "Update Skill" : "Add Skill"}
+            </button>
+          }
+        >
+          <form id="skill-form" onSubmit={handleSubmit}>
+            <div className="form-grid-2">
+              <div className="form-group">
+                <label className="form-label">Skill Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g., React.js"
+                  className="form-input"
+                />
               </div>
-
-              <form onSubmit={handleSubmit}>
-                <div style={{ padding: "1.5rem", overflowY: "auto", flex: "1" }}>
-                  <div className="form-grid-2">
-                    <div className="form-group">
-                      <label className="form-label">Skill Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="e.g., React.js"
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Category *</label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                        className="form-select"
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="form-grid-2">
-                    <div className="form-group">
-                      <label className="form-label">Skill Level (1-10) *</label>
-                      <input
-                        type="range"
-                        name="level"
-                        min="1"
-                        max="10"
-                        value={formData.level}
-                        onChange={handleInputChange}
-                        className="form-range"
-                      />
-                      <div className="range-display">
-                        {formData.level}/10 - {getLevelText(formData.level)}
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Icon Class</label>
-                      <input
-                        type="text"
-                        name="icon"
-                        value={formData.icon}
-                        onChange={handleInputChange}
-                        placeholder="e.g., fab fa-react"
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      rows={3}
-                      placeholder="Brief description of your experience with this skill..."
-                      className="form-textarea"
-                    />
-                  </div>
-
-                  <div className="form-grid-2">
-                    <div className="form-group">
-                      <label className="form-label">Years of Experience</label>
-                      <input
-                        type="number"
-                        name="yearsOfExperience"
-                        value={formData.yearsOfExperience}
-                        onChange={handleInputChange}
-                        min="0"
-                        step="0.5"
-                        className="form-input"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Projects Count</label>
-                      <input
-                        type="number"
-                        name="projects"
-                        value={formData.projects}
-                        onChange={handleInputChange}
-                        min="0"
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button
-                    type="button"
-                    className="custom-secondary-btn"
-                    onClick={() => {
-                      setShowModal(false)
-                      resetForm()
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="custom-primary-btn">
-                    {editingSkill ? "Update Skill" : "Add Skill"}
-                  </button>
-                </div>
-              </form>
+              <div className="form-group">
+                <label className="form-label">Category *</label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  required
+                  className="form-select"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
+
+            <div className="form-grid-2">
+              <div className="form-group">
+                <label className="form-label">Skill Level (1-10) *</label>
+                <input
+                  type="range"
+                  name="level"
+                  min="1"
+                  max="10"
+                  value={formData.level}
+                  onChange={handleInputChange}
+                  className="form-range"
+                />
+                <div className="range-display">
+                  {formData.level}/10 - {getLevelText(formData.level)}
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Icon Class</label>
+                <input
+                  type="text"
+                  name="icon"
+                  value={formData.icon}
+                  onChange={handleInputChange}
+                  placeholder="e.g., fab fa-react"
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={3}
+                placeholder="Brief description of your experience with this skill..."
+                className="form-textarea"
+              />
+            </div>
+
+            <div className="form-grid-2">
+              <div className="form-group">
+                <label className="form-label">Years of Experience</label>
+                <input
+                  type="number"
+                  name="yearsOfExperience"
+                  value={formData.yearsOfExperience}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.5"
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Projects Count</label>
+                <input
+                  type="number"
+                  name="projects"
+                  value={formData.projects}
+                  onChange={handleInputChange}
+                  min="0"
+                  className="form-input"
+                />
+              </div>
+            </div>
+          </form>
+        </CustomModal>
       </div>
     </AdminLayout>
   )
