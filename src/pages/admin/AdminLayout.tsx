@@ -1,69 +1,69 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useApi';
-import "../../styles/admin.css"; // Assuming you have a CSS file for styles
+"use client"
+
+import type React from "react"
+import { useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
-  title: string;
+  children: React.ReactNode
+  title: string
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
-  const { user, logoutUser } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
-    logoutUser();
-    navigate('/admin/login');
-  };
+    // Add your logout logic here
+    navigate("/admin/login")
+  }
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+    setSidebarOpen(!sidebarOpen)
+  }
 
   const closeSidebar = () => {
-    setSidebarOpen(false);
-  };
+    setSidebarOpen(false)
+  }
 
   const menuItems = [
-    { path: '/admin/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
-    { path: '/admin/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
-    { path: '/admin/skills', icon: 'fas fa-code', label: 'Skills' },
-    { path: '/admin/settings', icon: 'fas fa-cog', label: 'Settings' },
-  ];
+    { path: "/admin/dashboard", icon: "fas fa-tachometer-alt", label: "Dashboard" },
+    { path: "/admin/projects", icon: "fas fa-project-diagram", label: "Projects" },
+    { path: "/admin/skills", icon: "fas fa-code", label: "Skills" },
+    { path: "/admin/settings", icon: "fas fa-cog", label: "Settings" },
+  ]
 
   const handleNavigation = (path: string) => {
-    navigate(path);
-    closeSidebar();
-  };
+    navigate(path)
+    if (window.innerWidth <= 768) {
+      closeSidebar()
+    }
+  }
 
   return (
-    <div className="admin-layout">
-      {/* Sidebar Overlay */}
-      <div 
-        className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`}
-        onClick={closeSidebar}
-      ></div>
+    <div className="admin-app">
+      <div className="admin-layout">
+      {/* Sidebar Overlay for Mobile */}
+      <div className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`} onClick={closeSidebar}></div>
 
       {/* Sidebar */}
-      <div className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <div className={`admin-sidebar ${sidebarOpen ? "show" : ""}`}>
         <div className="sidebar-header">
           <h4 className="sidebar-title">
-            <i className="fas fa-user-shield"></i>
+            <i className="fas fa-user-shield me-2"></i>
             Admin Panel
           </h4>
           <button className="sidebar-close" onClick={closeSidebar}>
             <i className="fas fa-times"></i>
           </button>
         </div>
-        
+
         <nav className="sidebar-nav">
           {menuItems.map((item) => (
             <button
               key={item.path}
-              className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+              className={`nav-item ${location.pathname === item.path ? "active" : ""}`}
               onClick={() => handleNavigation(item.path)}
             >
               <i className={item.icon}></i>
@@ -71,52 +71,34 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
             </button>
           ))}
         </nav>
-
-        <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-avatar">
-              <i className="fas fa-user"></i>
-            </div>
-            <div className="user-details">
-              <div className="user-name">{user?.email?.split('@')[0] || 'Admin'}</div>
-              <div className="user-role">Administrator</div>
-            </div>
-          </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt"></i>
-            Logout
-          </button>
-        </div>
       </div>
 
       {/* Main Content */}
-      <div className="admin-main">
+      <div className={`admin-main ${sidebarOpen ? "sidebar-open" : ""}`}>
         <header className="admin-header">
-          <div className="header-content">
-            <div className="header-left">
-              <button className="hamburger-btn" onClick={toggleSidebar}>
-                <i className="fas fa-bars"></i>
-              </button>
-              <h1 className="page-title">{title}</h1>
-            </div>
-            <div className="header-actions">
-              <button 
-                className="btn btn-outline-primary"
-                onClick={() => window.open('/', '_blank')}
-              >
-                <i className="fas fa-external-link-alt"></i>
-                View Portfolio
-              </button>
-            </div>
+          <div className="header-left">
+            <button className="hamburger-btn" onClick={toggleSidebar}>
+              <i className="fas fa-bars"></i>
+            </button>
+            <h1 className="page-title">{title}</h1>
+          </div>
+          <div className="header-actions">
+            <button className="btn btn-outline-primary me-2" onClick={() => window.open("/", "_blank")}>
+              <i className="fas fa-external-link-alt me-2"></i>
+              View Portfolio
+            </button>
+            <button className="btn btn-secondary" onClick={handleLogout}>
+              <i className="fas fa-sign-out-alt me-2"></i>
+              Logout
+            </button>
           </div>
         </header>
 
-        <main className="admin-content">
-          {children}
-        </main>
+        <main className="admin-content">{children}</main>
       </div>
     </div>
-  );
-};
+    </div>
+  )
+}
 
-export default AdminLayout;
+export default AdminLayout

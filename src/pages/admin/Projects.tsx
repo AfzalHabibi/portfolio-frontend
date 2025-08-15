@@ -1,375 +1,381 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth, useProjects } from '../../hooks/useApi';
-import { CreateProjectWithFilesData } from '../../services/projectService';
-import { Project } from '../../types';
-import AdminLayout from './AdminLayout';
+"use client"
 
-interface ProjectFormData {
-  title: string;
-  description: string;
-  longDescription: string;
-  features: string[];
-  technologies: string[];
-  category: string;
-  completedDate: string;
-  demoUrl: string;
-  githubUrl: string;
-  clientRemarks: string;
-  mainImage: File | null;
-  images: File[];
-  videos: File[];
+import type React from "react"
+import { useState } from "react"
+import AdminLayout from "./AdminLayout"
+
+interface Project {
+  id: string
+  title: string
+  description: string
+  longDescription: string
+  features: string[]
+  technologies: string[]
+  category: string
+  completedDate: string
+  demoUrl?: string
+  githubUrl?: string
+  clientRemarks?: string
+  mainImage?: string
 }
 
 const Projects: React.FC = () => {
-  const {
-    projects,
-    loading,
-    actionLoading,
-    error,
-    loadProjects,
-    addProjectWithFiles,
-    editProject,
-    removeProject,
-    clearProjectError,
-  } = useProjects();
+  const [projects, setProjects] = useState<Project[]>([
+    {
+      id: "1",
+      title: "E-commerce Platform",
+      description: "Full-stack e-commerce solution with React and Node.js",
+      longDescription:
+        "A comprehensive e-commerce platform built with modern technologies including React, Node.js, and MongoDB. Features include user authentication, product catalog, shopping cart, payment integration, and admin dashboard.",
+      features: ["User Authentication", "Product Catalog", "Shopping Cart", "Payment Integration", "Admin Dashboard"],
+      technologies: ["React", "Node.js", "MongoDB", "Express", "Stripe"],
+      category: "Web Development",
+      completedDate: "2024-01-15",
+      demoUrl: "https://demo.example.com",
+      githubUrl: "https://github.com/user/ecommerce",
+      mainImage: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      id: "2",
+      title: "Mobile Banking App",
+      description: "Secure mobile banking application with biometric authentication",
+      longDescription:
+        "A secure mobile banking application featuring biometric authentication, real-time transactions, account management, and comprehensive security measures.",
+      features: ["Biometric Auth", "Real-time Transactions", "Account Management", "Security Features"],
+      technologies: ["React Native", "Firebase", "Node.js", "PostgreSQL"],
+      category: "Mobile Development",
+      completedDate: "2024-01-10",
+      githubUrl: "https://github.com/user/banking-app",
+      mainImage: "/placeholder.svg?height=300&width=400",
+    },
+  ])
 
-  const [showModal, setShowModal] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [formData, setFormData] = useState<ProjectFormData>({
-    title: '',
-    description: '',
-    longDescription: '',
-    features: [''],
-    technologies: [''],
-    category: '',
-    completedDate: '',
-    demoUrl: '',
-    githubUrl: '',
-    clientRemarks: '',
-    mainImage: null,
-    images: [],
-    videos: [],
-  });
+  const [showModal, setShowModal] = useState(false)
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    longDescription: "",
+    features: [""],
+    technologies: [""],
+    category: "",
+    completedDate: "",
+    demoUrl: "",
+    githubUrl: "",
+    clientRemarks: "",
+    mainImage: "",
+  })
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
+  const categories = ["Web Development", "Mobile Development", "Desktop Application", "UI/UX Design", "Other"]
 
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        clearProjectError();
-      }, 5000);
-      return () => clearTimeout(timer);
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = selectedCategory === "" || project.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleArrayChange = (index: number, value: string, field: 'features' | 'technologies') => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
+    }))
+  }
+
+  const addArrayItem = (field: 'features' | 'technologies') => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: [...prev[field], ""],
+    }))
+  }
+
+  const removeArrayItem = (index: number, field: 'features' | 'technologies') => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const newProject: Project = {
+      id: editingProject?.id || Date.now().toString(),
+      ...formData,
+      features: formData.features.filter(f => f.trim()),
+      technologies: formData.technologies.filter(t => t.trim()),
     }
-  }, [error, clearProjectError]);
+
+    if (editingProject) {
+      setProjects((prev) => prev.map((project) => (project.id === editingProject.id ? newProject : project)))
+    } else {
+      setProjects((prev) => [...prev, newProject])
+    }
+
+    resetForm()
+    setShowModal(false)
+  }
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
-      longDescription: '',
-      features: [''],
-      technologies: [''],
-      category: '',
-      completedDate: '',
-      demoUrl: '',
-      githubUrl: '',
-      clientRemarks: '',
-      mainImage: null,
-      images: [],
-      videos: [],
-    });
-    setEditingProject(null);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files } = e.target;
-    if (!files) return;
-
-    if (name === 'mainImage') {
-      setFormData(prev => ({
-        ...prev,
-        mainImage: files[0] || null,
-      }));
-    } else if (name === 'images') {
-      setFormData(prev => ({
-        ...prev,
-        images: Array.from(files),
-      }));
-    } else if (name === 'videos') {
-      setFormData(prev => ({
-        ...prev,
-        videos: Array.from(files),
-      }));
-    }
-  };
-
-  const handleArrayChange = (index: number, value: string, field: 'features' | 'technologies') => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item),
-    }));
-  };
-
-  const addArrayItem = (field: 'features' | 'technologies') => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], ''],
-    }));
-  };
-
-  const removeArrayItem = (index: number, field: 'features' | 'technologies') => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index),
-    }));
-  };
+      title: "",
+      description: "",
+      longDescription: "",
+      features: [""],
+      technologies: [""],
+      category: "",
+      completedDate: "",
+      demoUrl: "",
+      githubUrl: "",
+      clientRemarks: "",
+      mainImage: "",
+    })
+    setEditingProject(null)
+  }
 
   const handleEdit = (project: Project) => {
-    setEditingProject(project);
+    setEditingProject(project)
     setFormData({
       title: project.title,
       description: project.description,
       longDescription: project.longDescription,
-      features: project.features || [''],
-      technologies: project.technologies || [''],
+      features: project.features?.length ? project.features : [""],
+      technologies: project.technologies?.length ? project.technologies : [""],
       category: project.category,
       completedDate: project.completedDate,
-      demoUrl: project.demoUrl || '',
-      githubUrl: project.githubUrl || '',
-      clientRemarks: project.clientRemarks || '',
-      mainImage: null,
-      images: [],
-      videos: [],
-    });
-    setShowModal(true);
-  };
+      demoUrl: project.demoUrl || "",
+      githubUrl: project.githubUrl || "",
+      clientRemarks: project.clientRemarks || "",
+      mainImage: project.mainImage || "",
+    })
+    setShowModal(true)
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!editingProject && !formData.mainImage) {
-      alert('Please select a main image');
-      return;
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      setProjects((prev) => prev.filter((p) => p.id !== id))
     }
+  }
 
-    const projectData: CreateProjectWithFilesData = {
-      title: formData.title,
-      description: formData.description,
-      longDescription: formData.longDescription,
-      features: formData.features.filter(f => f.trim() !== ''),
-      technologies: formData.technologies.filter(t => t.trim() !== ''),
-      category: formData.category,
-      completedDate: formData.completedDate,
-      demoUrl: formData.demoUrl,
-      githubUrl: formData.githubUrl,
-      clientRemarks: formData.clientRemarks,
-      mainImage: formData.mainImage!,
-      images: formData.images,
-      videos: formData.videos,
-    };
-
-    try {
-      if (editingProject) {
-        const updateData = {
-          title: formData.title,
-          description: formData.description,
-          longDescription: formData.longDescription,
-          features: formData.features.filter(f => f.trim() !== ''),
-          technologies: formData.technologies.filter(t => t.trim() !== ''),
-          category: formData.category,
-          completedDate: formData.completedDate,
-          demoUrl: formData.demoUrl,
-          githubUrl: formData.githubUrl,
-          clientRemarks: formData.clientRemarks,
-        };
-        await editProject(editingProject.id, updateData);
-      } else {
-        await addProjectWithFiles(projectData);
-      }
-      setShowModal(false);
-      resetForm();
-      loadProjects();
-    } catch (err) {
-      console.error('Error saving project:', err);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      try {
-        await removeProject(id);
-        loadProjects();
-      } catch (err) {
-        console.error('Error deleting project:', err);
-      }
-    }
-  };
-
-  const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === '' || project.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const categories = Array.from(new Set(projects.map(p => p.category)));
+  const closeModal = () => {
+    setShowModal(false)
+    resetForm()
+  }
 
   return (
     <AdminLayout title="Projects Management">
-      <div className="projects-manager">
-        {/* Error Alert */}
-        {error && (
-          <div className="alert alert-error">
-            <i className="fas fa-exclamation-triangle"></i>
-            {error}
-            <button className="alert-close" onClick={clearProjectError}>
-              <i className="fas fa-times"></i>
-            </button>
+      <div className="dashboard-content">
+        {/* Header Section */}
+        <div className="welcome-section">
+          <div className="welcome-text">
+            <h2>Projects Management</h2>
+            <p>Manage your portfolio projects and showcase your work</p>
           </div>
-        )}
-
-        {/* Header Actions */}
-        <div className="content-header">
-          <div className="header-stats">
-            <div className="stat-card">
-              <div className="stat-icon">
-                <i className="fas fa-project-diagram"></i>
-              </div>
-              <div className="stat-info">
-                <h3>{projects.length}</h3>
-                <p>Total Projects</p>
-              </div>
-            </div>
-          </div>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              resetForm();
-              setShowModal(true);
-            }}
-          >
-            <i className="fas fa-plus"></i>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <i className="fas fa-plus me-2"></i>
             Add New Project
           </button>
         </div>
 
         {/* Filters Section */}
-        <div className="filters-section">
-          <div className="search-box">
-            <i className="fas fa-search"></i>
-            <input
-              type="text"
-              placeholder="Search projects..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="content-card" style={{ marginBottom: "2rem" }}>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ flex: "1", minWidth: "250px" }}>
+              <div style={{ position: "relative" }}>
+                <i
+                  className="fas fa-search"
+                  style={{
+                    position: "absolute",
+                    left: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "var(--text-muted)",
+                  }}
+                ></i>
+                <input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem 0.75rem 0.75rem 2.5rem",
+                    background: "var(--secondary-bg)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "8px",
+                    color: "var(--text-primary)",
+                    fontSize: "0.9rem",
+                  }}
+                />
+              </div>
+            </div>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: "0.75rem",
+                background: "var(--secondary-bg)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "8px",
+                color: "var(--text-primary)",
+                fontSize: "0.9rem",
+                minWidth: "150px",
+              }}
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
-          <select
-            className="category-filter"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
         </div>
 
         {/* Projects Grid */}
-        <div className="projects-grid">
-          {loading ? (
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Loading projects...</p>
-            </div>
-          ) : filteredProjects.length > 0 ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "1.5rem" }}>
+          {filteredProjects.length > 0 ? (
             filteredProjects.map((project) => (
-              <div key={project.id} className="project-card">
-                <div className="project-image">
-                  <img src={project.mainImage || "/placeholder.svg?height=200&width=350"} alt={project.title} />
-                  <div className="project-overlay">
-                    <div className="project-actions">
-                      <button
-                        className="btn-icon btn-edit"
-                        onClick={() => handleEdit(project)}
-                        title="Edit Project"
+              <div key={project.id} className="content-card" style={{ padding: "0", overflow: "hidden" }}>
+                <div style={{ position: "relative" }}>
+                  <img
+                    src={project.mainImage || "/placeholder.svg"}
+                    alt={project.title}
+                    style={{ width: "100%", height: "200px", objectFit: "cover" }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                      left: "0",
+                      right: "0",
+                      bottom: "0",
+                      background: "rgba(0, 0, 0, 0.7)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                      opacity: "0",
+                      transition: "opacity 0.3s ease",
+                    }}
+                    className="project-overlay"
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "0")}
+                  >
+                    <button className="btn btn-primary btn-sm">
+                      <i className="fas fa-edit"></i>
+                    </button>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(project.id)}>
+                      <i className="fas fa-trash"></i>
+                    </button>
+                    {project.demoUrl && (
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-info btn-sm"
                       >
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        className="btn-icon btn-delete"
-                        onClick={() => handleDelete(project.id)}
-                        disabled={actionLoading}
-                        title="Delete Project"
+                        <i className="fas fa-external-link-alt"></i>
+                      </a>
+                    )}
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-secondary btn-sm"
                       >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                      {project.demoUrl && (
-                        <a
-                          href={project.demoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-icon btn-view"
-                          title="View Demo"
-                        >
-                          <i className="fas fa-external-link-alt"></i>
-                        </a>
-                      )}
-                      {project.githubUrl && (
-                        <a
-                          href={project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-icon btn-github"
-                          title="View Code"
-                        >
-                          <i className="fab fa-github"></i>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="project-content">
-                  <div className="project-header">
-                    <h3>{project.title}</h3>
-                    <span className="project-category">{project.category}</span>
-                  </div>
-                  <p className="project-description">
-                    {project.description.length > 120 
-                      ? `${project.description.substring(0, 120)}...` 
-                      : project.description}
-                  </p>
-                  <div className="project-technologies">
-                    {project.technologies?.slice(0, 3).map((tech, index) => (
-                      <span key={index} className="tech-tag">{tech}</span>
-                    ))}
-                    {project.technologies && project.technologies.length > 3 && (
-                      <span className="tech-more">+{project.technologies.length - 3} more</span>
+                        <i className="fab fa-github"></i>
+                      </a>
                     )}
                   </div>
-                  <div className="project-footer">
-                    <span className="project-date">
-                      <i className="fas fa-calendar"></i>
+                </div>
+                <div style={{ padding: "1.5rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    <h3 style={{ color: "var(--text-primary)", fontSize: "1.25rem", fontWeight: "600", margin: "0" }}>
+                      {project.title}
+                    </h3>
+                    <span
+                      style={{
+                        background: "var(--accent-primary)",
+                        color: "white",
+                        padding: "0.25rem 0.75rem",
+                        borderRadius: "12px",
+                        fontSize: "0.75rem",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {project.category}
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontSize: "0.9rem",
+                      lineHeight: "1.5",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    {project.description.length > 120
+                      ? `${project.description.substring(0, 120)}...`
+                      : project.description}
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+                    {project.technologies?.slice(0, 3).map((tech, index) => (
+                      <span
+                        key={index}
+                        style={{
+                          background: "var(--secondary-bg)",
+                          color: "var(--text-muted)",
+                          padding: "0.25rem 0.5rem",
+                          borderRadius: "6px",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {project.technologies && project.technologies.length > 3 && (
+                      <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                        +{project.technologies.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
+                      <i className="fas fa-calendar me-1"></i>
                       {new Date(project.completedDate).toLocaleDateString()}
                     </span>
-                    <div className="project-stats">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                        color: "var(--text-muted)",
+                        fontSize: "0.875rem",
+                      }}
+                    >
                       {project.features && (
-                        <span title="Features">
-                          <i className="fas fa-list"></i>
-                          {project.features.length}
+                        <span>
+                          <i className="fas fa-list me-1"></i>
+                          {project.features.length} features
                         </span>
                       )}
                     </div>
@@ -378,300 +384,24 @@ const Projects: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="empty-state">
+            <div className="empty-state" style={{ gridColumn: "1 / -1" }}>
               <i className="fas fa-folder-open"></i>
               <h3>No Projects Found</h3>
               <p>
-                {searchTerm || selectedCategory 
-                  ? "No projects match your current filters." 
+                {searchTerm || selectedCategory
+                  ? "No projects match your current filters."
                   : "Create your first project to get started."}
               </p>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  resetForm();
-                  setShowModal(true);
-                }}
-              >
-                <i className="fas fa-plus"></i>
+              <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                <i className="fas fa-plus me-2"></i>
                 Add New Project
               </button>
             </div>
           )}
         </div>
-
-        {/* Add/Edit Project Modal */}
-        {showModal && (
-          <div className="modal-overlay" onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowModal(false);
-              resetForm();
-            }
-          }}>
-            <div className="modal-content project-modal">
-              <div className="modal-header">
-                <h2>{editingProject ? 'Edit Project' : 'Add New Project'}</h2>
-                <button
-                  className="modal-close"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              
-              <form onSubmit={handleSubmit} className="project-form">
-                <div className="modal-body">
-                  {/* Basic Information */}
-                  <div className="form-section">
-                    <h3>Basic Information</h3>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Project Title *</label>
-                        <input
-                          type="text"
-                          name="title"
-                          value={formData.title}
-                          onChange={handleInputChange}
-                          placeholder="Enter project title"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Category *</label>
-                        <select
-                          name="category"
-                          value={formData.category}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          <option value="">Select Category</option>
-                          <option value="Web Development">Web Development</option>
-                          <option value="Mobile Development">Mobile Development</option>
-                          <option value="Desktop Application">Desktop Application</option>
-                          <option value="UI/UX Design">UI/UX Design</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div className="form-group">
-                      <label>Short Description *</label>
-                      <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        placeholder="Brief description of the project"
-                        rows={3}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label>Detailed Description *</label>
-                      <textarea
-                        name="longDescription"
-                        value={formData.longDescription}
-                        onChange={handleInputChange}
-                        placeholder="Detailed project description"
-                        rows={5}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="form-section">
-                    <h3>Features</h3>
-                    <div className="array-inputs">
-                      {formData.features.map((feature, index) => (
-                        <div key={index} className="array-input">
-                          <input
-                            type="text"
-                            value={feature}
-                            onChange={(e) => handleArrayChange(index, e.target.value, 'features')}
-                            placeholder="Enter feature"
-                          />
-                          <button
-                            type="button"
-                            className="btn-remove"
-                            onClick={() => removeArrayItem(index, 'features')}
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        className="btn-add"
-                        onClick={() => addArrayItem('features')}
-                      >
-                        <i className="fas fa-plus"></i>
-                        Add Feature
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Technologies */}
-                  <div className="form-section">
-                    <h3>Technologies</h3>
-                    <div className="array-inputs">
-                      {formData.technologies.map((tech, index) => (
-                        <div key={index} className="array-input">
-                          <input
-                            type="text"
-                            value={tech}
-                            onChange={(e) => handleArrayChange(index, e.target.value, 'technologies')}
-                            placeholder="Enter technology"
-                          />
-                          <button
-                            type="button"
-                            className="btn-remove"
-                            onClick={() => removeArrayItem(index, 'technologies')}
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        className="btn-add"
-                        onClick={() => addArrayItem('technologies')}
-                      >
-                        <i className="fas fa-plus"></i>
-                        Add Technology
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* URLs and Date */}
-                  <div className="form-section">
-                    <h3>Links & Timeline</h3>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Demo URL</label>
-                        <input
-                          type="url"
-                          name="demoUrl"
-                          value={formData.demoUrl}
-                          onChange={handleInputChange}
-                          placeholder="https://demo-url.com"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>GitHub URL</label>
-                        <input
-                          type="url"
-                          name="githubUrl"
-                          value={formData.githubUrl}
-                          onChange={handleInputChange}
-                          placeholder="https://github.com/username/repo"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Completion Date *</label>
-                        <input
-                          type="date"
-                          name="completedDate"
-                          value={formData.completedDate}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Client Remarks */}
-                  <div className="form-section">
-                    <h3>Additional Information</h3>
-                    <div className="form-group">
-                      <label>Client Remarks</label>
-                      <textarea
-                        name="clientRemarks"
-                        value={formData.clientRemarks}
-                        onChange={handleInputChange}
-                        placeholder="Client feedback or additional notes"
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-
-                  {/* File Uploads */}
-                  <div className="form-section">
-                    <h3>Media Files</h3>
-                    <div className="form-group">
-                      <label>Main Image * {editingProject && "(Leave empty to keep current image)"}</label>
-                      <input
-                        type="file"
-                        name="mainImage"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        required={!editingProject}
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label>Additional Images</label>
-                      <input
-                        type="file"
-                        name="images"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label>Videos</label>
-                      <input
-                        type="file"
-                        name="videos"
-                        accept="video/*"
-                        multiple
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setShowModal(false);
-                      resetForm();
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={actionLoading}
-                  >
-                    {actionLoading ? (
-                      <>
-                        <div className="spinner-small"></div>
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-save"></i>
-                        {editingProject ? 'Update Project' : 'Create Project'}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </AdminLayout>
-  );
-};
+  )
+}
 
-export default Projects;
+export default Projects
