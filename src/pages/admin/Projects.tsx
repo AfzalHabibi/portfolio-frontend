@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
@@ -23,10 +23,15 @@ const Projects: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { projects, loading, error, actionLoading } = useSelector((state: RootState) => state.projects)
 
+  // Modal and editing state
   const [showModal, setShowModal] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
+  
+  // Filter states
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
+  
+  // Form data state
   const [formData, setFormData] = useState<CreateProjectData>({
     title: "",
     description: "",
@@ -45,10 +50,12 @@ const Projects: React.FC = () => {
 
   const categories = ["Web Development", "Mobile Development", "Desktop Application", "UI/UX Design", "Other"]
 
-  // Load projects on component mount
+  // Load projects on component mount - prevent duplicate calls
   useEffect(() => {
-    dispatch(fetchProjects())
-  }, [dispatch])
+    if (projects.length === 0 && !loading) {
+      dispatch(fetchProjects())
+    }
+  }, [dispatch, projects.length, loading])
 
   // Handle errors with toast notifications
   useEffect(() => {
@@ -58,44 +65,53 @@ const Projects: React.FC = () => {
     }
   }, [error, dispatch])
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch =
-      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "" || project.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  // Memoized filtered projects to prevent unnecessary recalculations
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const matchesSearch = !searchTerm || 
+        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesCategory = !selectedCategory || project.category === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+  }, [projects, searchTerm, selectedCategory])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Memoized stats calculation
+  const stats = useMemo(() => ({
+    totalProjects: projects.length,
+    totalCategories: new Set(projects.map(p => p.category)).size
+  }), [projects])
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }))
-  }
+  }, [])
 
-  const handleArrayChange = (index: number, value: string, field: 'features' | 'technologies') => {
+  const handleArrayChange = useCallback((index: number, value: string, field: 'features' | 'technologies') => {
     setFormData((prev) => ({
       ...prev,
       [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }))
-  }
+  }, [])
 
-  const addArrayItem = (field: 'features' | 'technologies') => {
+  const addArrayItem = useCallback((field: 'features' | 'technologies') => {
     setFormData((prev) => ({
       ...prev,
       [field]: [...prev[field], ""],
     }))
-  }
+  }, [])
 
-  const removeArrayItem = (index: number, field: 'features' | 'technologies') => {
+  const removeArrayItem = useCallback((index: number, field: 'features' | 'technologies') => {
     setFormData((prev) => ({
       ...prev,
       [field]: prev[field].filter((_, i) => i !== index),
     }))
-  }
+  }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
     // Validate required fields
@@ -127,9 +143,9 @@ const Projects: React.FC = () => {
     } catch (error: any) {
       toast.error(error.message || 'An error occurred')
     }
-  }
+  }, [dispatch, editingProject, formData])
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       title: "",
       description: "",
@@ -146,14 +162,14 @@ const Projects: React.FC = () => {
       videos: []
     })
     setEditingProject(null)
-  }
+  }, [])
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowModal(false)
     resetForm()
-  }
+  }, [resetForm])
 
-  const handleEdit = (project: Project) => {
+  const handleEdit = useCallback((project: Project) => {
     setEditingProject(project)
     setFormData({
       title: project.title,
@@ -171,9 +187,9 @@ const Projects: React.FC = () => {
       videos: project.videos || []
     })
     setShowModal(true)
-  }
+  }, [])
 
-  const handleDelete = async (id: string, title: string) => {
+  const handleDelete = useCallback(async (id: string, title: string) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: `You want to delete "${title}"? This action cannot be undone.`,
@@ -201,17 +217,18 @@ const Projects: React.FC = () => {
         toast.error(error.message || 'Failed to delete project')
       }
     }
-  }
+  }, [dispatch])
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     })
-  }
+  }, [])
 
-  if (loading) {
+  // Render loading state only on initial load
+  if (loading && projects.length === 0) {
     return (
       <AdminLayout title="Projects Management">
         <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
@@ -220,6 +237,7 @@ const Projects: React.FC = () => {
       </AdminLayout>
     )
   }
+
   return (
     <AdminLayout title="Projects Management">
       <div className="dashboard-content">
@@ -231,12 +249,12 @@ const Projects: React.FC = () => {
           </div>
           <div className="quick-stats">
             <div className="stat-item">
-              <span className="stat-number">{projects.length}</span>
+              <span className="stat-number">{stats.totalProjects}</span>
               <span className="stat-label">Total Projects</span>
             </div>
             <div className="stat-divider"></div>
             <div className="stat-item">
-              <span className="stat-number">{new Set(projects.map(p => p.category)).size}</span>
+              <span className="stat-number">{stats.totalCategories}</span>
               <span className="stat-label">Categories</span>
             </div>
           </div>
@@ -248,6 +266,7 @@ const Projects: React.FC = () => {
             className="custom-primary-btn" 
             onClick={() => setShowModal(true)}
             disabled={actionLoading}
+            type="button"
           >
             <i className="fas fa-plus me-2"></i>
             Add New Project
@@ -287,115 +306,36 @@ const Projects: React.FC = () => {
         <div className="items-grid">
           {filteredProjects.length > 0 ? (
             filteredProjects.map((project) => (
-              <div key={project.id} className="content-card item-card">
-                <div className="item-card-image">
-                  <img
-                    src={project.mainImage || "/placeholder.svg"}
-                    alt={project.title}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "/placeholder.svg";
-                    }}
-                  />
-                  <div className="project-overlay">
-                    <button 
-                      className="custom-primary-btn btn-sm" 
-                      onClick={() => handleEdit(project)}
-                      disabled={actionLoading}
-                      title="Edit Project"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button 
-                      className="custom-btn-danger btn-sm" 
-                      onClick={() => handleDelete(project.id, project.title)}
-                      disabled={actionLoading}
-                      title="Delete Project"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                    {project.demoUrl && (
-                      <a
-                        href={project.demoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-info btn-sm"
-                        title="View Demo"
-                      >
-                        <i className="fas fa-external-link-alt"></i>
-                      </a>
-                    )}
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-dark btn-sm"
-                        title="View Code"
-                      >
-                        <i className="fab fa-github"></i>
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="item-card-content">
-                  <div className="project-header">
-                    <h3 className="item-card-title">{project.title}</h3>
-                    <span className="item-card-category">{project.category}</span>
-                  </div>
-                  <p className="item-card-description">
-                    {project.description.length > 120
-                      ? `${project.description.substring(0, 120)}...`
-                      : project.description}
-                  </p>
-                  <div className="project-tech-tags">
-                    {project.technologies?.slice(0, 3).map((tech, index) => (
-                      <span key={index} className="badge bg-secondary me-1 mb-1">
-                        {tech}
-                      </span>
-                    ))}
-                    {project.technologies?.length > 3 && (
-                      <span className="badge bg-light text-dark">
-                        +{project.technologies.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                  <div className="item-card-meta">
-                    <div className="meta-item">
-                      <i className="fas fa-calendar me-1"></i>
-                      {formatDate(project.completedDate)}
-                    </div>
-                    <div className="meta-item">
-                      <i className="fas fa-list me-1"></i>
-                      {project.features?.length || 0} features
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProjectCard 
+                key={project.id} 
+                project={project} 
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                formatDate={formatDate}
+                actionLoading={actionLoading}
+              />
             ))
           ) : (
-            <div className="empty-state" style={{ gridColumn: "1 / -1" }}>
+            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
               <i className="fas fa-folder-open"></i>
-              <h3>No Projects Found</h3>
+              <h4>No Projects Found</h4>
               <p>
-                {searchTerm || selectedCategory
-                  ? "No projects match your current filters."
-                  : "Create your first project to get started."}
+                {searchTerm || selectedCategory 
+                  ? 'No projects match your current filters.' 
+                  : 'Start by adding your first project.'}
               </p>
-              <button className="custom-primary-btn" onClick={() => setShowModal(true)}>
-                <i className="fas fa-plus me-2"></i>
-                Add New Project
-              </button>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Add/Edit Modal */}
+      {/* Modal */}
+      {showModal && (
         <CustomModal
           isOpen={showModal}
           onClose={closeModal}
           title={editingProject ? "Edit Project" : "Add New Project"}
-          modalSize="modal-xl"
+          modalSize="modal-lg"
           actions={
             <>
               <button 
@@ -408,18 +348,12 @@ const Projects: React.FC = () => {
               </button>
               <button 
                 type="submit" 
-                className="custom-primary-btn" 
+                className="custom-primary-btn"
                 form="project-form"
                 disabled={actionLoading}
               >
-                {actionLoading ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin me-2"></i>
-                    {editingProject ? "Updating..." : "Creating..."}
-                  </>
-                ) : (
-                  editingProject ? "Update Project" : "Create Project"
-                )}
+                {actionLoading && <i className="fas fa-spinner fa-spin me-2"></i>}
+                {editingProject ? 'Update Project' : 'Create Project'}
               </button>
             </>
           }
@@ -431,21 +365,21 @@ const Projects: React.FC = () => {
                 <input
                   type="text"
                   name="title"
+                  className="form-input"
                   value={formData.title}
                   onChange={handleInputChange}
+                  placeholder="Enter project title"
                   required
-                  placeholder="e.g., E-commerce Platform"
-                  className="form-input"
                 />
               </div>
               <div className="form-group">
                 <label className="form-label">Category *</label>
                 <select
                   name="category"
+                  className="form-select"
                   value={formData.category}
                   onChange={handleInputChange}
                   required
-                  className="form-select"
                 >
                   <option value="">Select Category</option>
                   {categories.map((category) => (
@@ -458,15 +392,15 @@ const Projects: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Short Description *</label>
+              <label className="form-label">Description *</label>
               <textarea
                 name="description"
+                className="form-textarea"
                 value={formData.description}
                 onChange={handleInputChange}
+                placeholder="Brief description of the project"
+                rows={3}
                 required
-                rows={2}
-                placeholder="Brief description of the project..."
-                className="form-textarea"
               />
             </div>
 
@@ -474,79 +408,35 @@ const Projects: React.FC = () => {
               <label className="form-label">Long Description</label>
               <textarea
                 name="longDescription"
+                className="form-textarea"
                 value={formData.longDescription}
                 onChange={handleInputChange}
+                placeholder="Detailed description of the project"
                 rows={4}
-                placeholder="Detailed description of the project..."
-                className="form-textarea"
               />
             </div>
 
             <div className="form-grid-2">
               <div className="form-group">
-                <label className="form-label">Features</label>
-                <div className="array-input-group">
-                  {formData.features.map((feature, index) => (
-                    <div key={index} className="array-input-item">
-                      <input
-                        type="text"
-                        value={feature}
-                        onChange={(e) => handleArrayChange(index, e.target.value, 'features')}
-                        placeholder="Feature name"
-                        className="form-input"
-                      />
-                      {formData.features.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeArrayItem(index, 'features')}
-                          className="array-remove-btn"
-                        >
-                          <i className="fas fa-times"></i>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addArrayItem('features')}
-                    className="array-add-btn"
-                  >
-                    <i className="fas fa-plus me-2"></i>Add Feature
-                  </button>
-                </div>
+                <label className="form-label">Completed Date</label>
+                <input
+                  type="date"
+                  name="completedDate"
+                  className="form-input"
+                  value={formData.completedDate}
+                  onChange={handleInputChange}
+                />
               </div>
-
               <div className="form-group">
-                <label className="form-label">Technologies</label>
-                <div className="array-input-group">
-                  {formData.technologies.map((tech, index) => (
-                    <div key={index} className="array-input-item">
-                      <input
-                        type="text"
-                        value={tech}
-                        onChange={(e) => handleArrayChange(index, e.target.value, 'technologies')}
-                        placeholder="Technology name"
-                        className="form-input"
-                      />
-                      {formData.technologies.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeArrayItem(index, 'technologies')}
-                          className="array-remove-btn"
-                        >
-                          <i className="fas fa-times"></i>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addArrayItem('technologies')}
-                    className="array-add-btn"
-                  >
-                    <i className="fas fa-plus me-2"></i>Add Technology
-                  </button>
-                </div>
+                <label className="form-label">Main Image URL</label>
+                <input
+                  type="url"
+                  name="mainImage"
+                  className="form-input"
+                  value={formData.mainImage}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/image.jpg"
+                />
               </div>
             </div>
 
@@ -556,10 +446,10 @@ const Projects: React.FC = () => {
                 <input
                   type="url"
                   name="demoUrl"
+                  className="form-input"
                   value={formData.demoUrl}
                   onChange={handleInputChange}
                   placeholder="https://demo.example.com"
-                  className="form-input"
                 />
               </div>
               <div className="form-group">
@@ -567,35 +457,79 @@ const Projects: React.FC = () => {
                 <input
                   type="url"
                   name="githubUrl"
+                  className="form-input"
                   value={formData.githubUrl}
                   onChange={handleInputChange}
-                  placeholder="https://github.com/user/repo"
-                  className="form-input"
+                  placeholder="https://github.com/username/repo"
                 />
               </div>
             </div>
 
-            <div className="form-grid-2">
-              <div className="form-group">
-                <label className="form-label">Completed Date</label>
-                <input
-                  type="date"
-                  name="completedDate"
-                  value={formData.completedDate}
-                  onChange={handleInputChange}
-                  className="form-input"
-                />
+            <div className="form-group">
+              <label className="form-label">Features</label>
+              <div className="array-input-group">
+                {formData.features.map((feature, index) => (
+                  <div key={index} className="array-input-item">
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={feature}
+                      onChange={(e) => handleArrayChange(index, e.target.value, 'features')}
+                      placeholder={`Feature ${index + 1}`}
+                    />
+                    {formData.features.length > 1 && (
+                      <button
+                        type="button"
+                        className="array-remove-btn"
+                        onClick={() => removeArrayItem(index, 'features')}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="array-add-btn"
+                  onClick={() => addArrayItem('features')}
+                >
+                  <i className="fas fa-plus me-2"></i>
+                  Add Feature
+                </button>
               </div>
-              <div className="form-group">
-                <label className="form-label">Main Image URL</label>
-                <input
-                  type="url"
-                  name="mainImage"
-                  value={formData.mainImage}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com/image.jpg"
-                  className="form-input"
-                />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Technologies</label>
+              <div className="array-input-group">
+                {formData.technologies.map((tech, index) => (
+                  <div key={index} className="array-input-item">
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={tech}
+                      onChange={(e) => handleArrayChange(index, e.target.value, 'technologies')}
+                      placeholder={`Technology ${index + 1}`}
+                    />
+                    {formData.technologies.length > 1 && (
+                      <button
+                        type="button"
+                        className="array-remove-btn"
+                        onClick={() => removeArrayItem(index, 'technologies')}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="array-add-btn"
+                  onClick={() => addArrayItem('technologies')}
+                >
+                  <i className="fas fa-plus me-2"></i>
+                  Add Technology
+                </button>
               </div>
             </div>
 
@@ -603,18 +537,101 @@ const Projects: React.FC = () => {
               <label className="form-label">Client Remarks</label>
               <textarea
                 name="clientRemarks"
+                className="form-textarea"
                 value={formData.clientRemarks}
                 onChange={handleInputChange}
+                placeholder="Any remarks or feedback from client"
                 rows={3}
-                placeholder="Any additional remarks or notes..."
-                className="form-textarea"
               />
             </div>
           </form>
         </CustomModal>
-      </div>
+      )}
     </AdminLayout>
   )
 }
+
+// Memoized Project Card Component to prevent unnecessary re-renders
+const ProjectCard = React.memo<{
+  project: Project
+  onEdit: (project: Project) => void
+  onDelete: (id: string, title: string) => void
+  formatDate: (date: string) => string
+  actionLoading: boolean
+}>(({ project, onEdit, onDelete, formatDate, actionLoading }) => (
+  <div className="content-card item-card">
+    <div className="item-card-image">
+      <img
+        src={project.mainImage || ""}
+        alt={project.title}
+      />
+      <div className="project-overlay">
+        <button 
+          className="btn-icon" 
+          onClick={() => onEdit(project)}
+          disabled={actionLoading}
+          title="Edit Project"
+        >
+          <i className="fas fa-edit"></i>
+        </button>
+        <button 
+          className="btn-icon" 
+          onClick={() => onDelete(project.id, project.title)}
+          disabled={actionLoading}
+          title="Delete Project"
+        >
+          <i className="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div className="item-card-content">
+      <div className="project-header">
+        <h3 className="item-card-title">{project.title}</h3>
+        <span className="item-card-category">{project.category}</span>
+      </div>
+      <p className="item-card-description">
+        {project.description}
+      </p>
+      <div className="project-tech-tags">
+        {project.technologies?.slice(0, 3).map((tech, index) => (
+          <span key={index} className="tech-tag">
+            {tech}
+          </span>
+        ))}
+        {project.technologies && project.technologies.length > 3 && (
+          <span className="tech-more">
+            +{project.technologies.length - 3} more
+          </span>
+        )}
+      </div>
+      <div className="item-card-actions">
+        <div className="item-card-meta">
+          <div className="meta-item">
+            <i className="fas fa-calendar"></i>
+            {formatDate(project.completedDate)}
+          </div>
+          {project.demoUrl && (
+            <div className="meta-item">
+              <i className="fas fa-external-link-alt"></i>
+              <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                Demo
+              </a>
+            </div>
+          )}
+          {project.githubUrl && (
+            <div className="meta-item">
+              <i className="fab fa-github"></i>
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                Code
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+))
+
+ProjectCard.displayName = 'ProjectCard'
 
 export default Projects

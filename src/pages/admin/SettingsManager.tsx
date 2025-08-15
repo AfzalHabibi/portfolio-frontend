@@ -1,65 +1,87 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import AdminLayout from "./AdminLayout"
+import { RootState, AppDispatch } from "../../store/store"
+import { fetchSiteSettings, updateSiteSettings, clearError } from "../../store/slices/settingsSlice"
+import { SiteSettings } from "../../types"
+import Loader from "../../components/Loader"
 
 const SettingsManager: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  const { settings, loading, error } = useSelector((state: RootState) => state.settings)
+  
   const [activeTab, setActiveTab] = useState("general")
-  const [settings, setSettings] = useState({
-    // General Settings
-    siteName: "My Portfolio",
-    tagline: "Full Stack Developer",
-    email: "contact@example.com",
-    phone: "+1 (555) 123-4567",
-    location: "New York, USA",
+  const [localSettings, setLocalSettings] = useState<SiteSettings>(settings)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // Social Links
-    github: "https://github.com/username",
-    linkedin: "https://linkedin.com/in/username",
-    twitter: "https://twitter.com/username",
-    instagram: "https://instagram.com/username",
+  useEffect(() => {
+    // Fetch settings on component mount
+    dispatch(fetchSiteSettings())
+  }, [dispatch])
 
-    // Theme Settings
-    primaryColor: "#6366f1",
-    secondaryColor: "#8b5cf6",
-    darkMode: true,
+  useEffect(() => {
+    // Update local settings when Redux state changes
+    setLocalSettings(settings)
+  }, [settings])
 
-    // SEO Settings
-    metaTitle: "My Portfolio - Full Stack Developer",
-    metaDescription: "Professional portfolio showcasing my work as a full stack developer",
-    metaKeywords: "developer, portfolio, react, node.js, javascript",
-
-    // Features
-    showProjects: true,
-    showSkills: true,
-    showContact: true,
-    showBlog: false,
-    enableAnimations: true,
-    enableParticles: false,
-  })
+  useEffect(() => {
+    // Clear any previous errors when component mounts
+    if (error) {
+      dispatch(clearError())
+    }
+  }, [dispatch, error])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement
-    setSettings((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }))
+    
+    if (name.startsWith('socialLinks.')) {
+      const socialKey = name.split('.')[1]
+      setLocalSettings((prev) => ({
+        ...prev,
+        socialLinks: {
+          ...prev.socialLinks,
+          [socialKey]: value,
+        },
+      }))
+    } else {
+      setLocalSettings((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }))
+    }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Save settings logic here
-    alert("Settings saved successfully!")
+    setIsSubmitting(true)
+    
+    try {
+      await dispatch(updateSiteSettings(localSettings)).unwrap()
+      alert("Settings saved successfully!")
+    } catch (error: any) {
+      alert(`Failed to save settings: ${error}`)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const tabs = [
     { id: "general", label: "General", icon: "fas fa-cog" },
     { id: "social", label: "Social Links", icon: "fas fa-share-alt" },
-    { id: "theme", label: "Theme", icon: "fas fa-palette" },
-    { id: "seo", label: "SEO", icon: "fas fa-search" },
-    { id: "features", label: "Features", icon: "fas fa-toggle-on" },
   ]
+
+  if (loading && !localSettings.name) {
+    return (
+      <AdminLayout title="Settings Management">
+        <div className="dashboard-content">
+          <Loader />
+        </div>
+      </AdminLayout>
+    )
+  }
 
   return (
     <AdminLayout title="Settings Management">
@@ -71,6 +93,13 @@ const SettingsManager: React.FC = () => {
             <p>Configure your portfolio settings and preferences</p>
           </div>
         </div>
+
+        {error && (
+          <div className="alert alert-error mb-3">
+            <i className="fas fa-exclamation-triangle me-2"></i>
+            {error}
+          </div>
+        )}
 
         {/* Settings Tabs */}
         <div className="settings-tabs">
@@ -100,25 +129,39 @@ const SettingsManager: React.FC = () => {
                 <div className="form-container">
                   <div className="form-grid-2">
                     <div className="form-group">
-                      <label className="form-label">Site Name</label>
+                      <label className="form-label">Name</label>
                       <input
                         type="text"
-                        name="siteName"
-                        value={settings.siteName}
+                        name="name"
+                        value={localSettings.name || ''}
                         onChange={handleInputChange}
                         className="form-input"
+                        required
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Tagline</label>
+                      <label className="form-label">Title</label>
                       <input
                         type="text"
-                        name="tagline"
-                        value={settings.tagline}
+                        name="title"
+                        value={localSettings.title || ''}
                         onChange={handleInputChange}
                         className="form-input"
+                        required
                       />
                     </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Description</label>
+                    <textarea
+                      name="description"
+                      value={localSettings.description || ''}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="form-textarea"
+                      required
+                    />
                   </div>
 
                   <div className="form-grid-2">
@@ -127,9 +170,10 @@ const SettingsManager: React.FC = () => {
                       <input
                         type="email"
                         name="email"
-                        value={settings.email}
+                        value={localSettings.email || ''}
                         onChange={handleInputChange}
                         className="form-input"
+                        required
                       />
                     </div>
                     <div className="form-group">
@@ -137,9 +181,10 @@ const SettingsManager: React.FC = () => {
                       <input
                         type="tel"
                         name="phone"
-                        value={settings.phone}
+                        value={localSettings.phone || ''}
                         onChange={handleInputChange}
                         className="form-input"
+                        required
                       />
                     </div>
                   </div>
@@ -149,9 +194,22 @@ const SettingsManager: React.FC = () => {
                     <input
                       type="text"
                       name="location"
-                      value={settings.location}
+                      value={localSettings.location || ''}
                       onChange={handleInputChange}
                       className="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">CV URL</label>
+                    <input
+                      type="text"
+                      name="cvUrl"
+                      value={localSettings.cvUrl || ''}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Path to your CV file"
                     />
                   </div>
                 </div>
@@ -172,6 +230,8 @@ const SettingsManager: React.FC = () => {
                     { name: "linkedin", icon: "fab fa-linkedin", label: "LinkedIn" },
                     { name: "twitter", icon: "fab fa-twitter", label: "Twitter" },
                     { name: "instagram", icon: "fab fa-instagram", label: "Instagram" },
+                    { name: "behance", icon: "fab fa-behance", label: "Behance" },
+                    { name: "dribbble", icon: "fab fa-dribbble", label: "Dribbble" },
                   ].map((social) => (
                     <div key={social.name} className="social-link-item">
                       <div className="social-icon">
@@ -181,8 +241,8 @@ const SettingsManager: React.FC = () => {
                         <label className="form-label">{social.label}</label>
                         <input
                           type="url"
-                          name={social.name}
-                          value={settings[social.name as keyof typeof settings] as string}
+                          name={`socialLinks.${social.name}`}
+                          value={localSettings.socialLinks?.[social.name as keyof typeof localSettings.socialLinks] || ''}
                           onChange={handleInputChange}
                           placeholder={`Your ${social.label} URL`}
                           className="form-input"
@@ -194,151 +254,24 @@ const SettingsManager: React.FC = () => {
               </div>
             )}
 
-            {/* Theme Settings */}
-            {activeTab === "theme" && (
-              <div>
-                <div className="form-section">
-                  <h3 className="form-section-title">Theme Settings</h3>
-                  <p className="form-section-description">Customize the appearance of your portfolio</p>
-                </div>
-
-                <div className="form-container">
-                  <div className="form-grid-2">
-                    <div className="form-group">
-                      <label className="form-label">Primary Color</label>
-                      <div className="color-input-group">
-                        <input
-                          type="color"
-                          name="primaryColor"
-                          value={settings.primaryColor}
-                          onChange={handleInputChange}
-                          className="form-color"
-                        />
-                        <input
-                          type="text"
-                          name="primaryColor"
-                          value={settings.primaryColor}
-                          onChange={handleInputChange}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Secondary Color</label>
-                      <div className="color-input-group">
-                        <input
-                          type="color"
-                          name="secondaryColor"
-                          value={settings.secondaryColor}
-                          onChange={handleInputChange}
-                          className="form-color"
-                        />
-                        <input
-                          type="text"
-                          name="secondaryColor"
-                          value={settings.secondaryColor}
-                          onChange={handleInputChange}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="form-checkbox">
-                    <input
-                      type="checkbox"
-                      name="darkMode"
-                      checked={settings.darkMode}
-                      onChange={handleInputChange}
-                    />
-                    <label>Enable Dark Mode</label>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* SEO Settings */}
-            {activeTab === "seo" && (
-              <div>
-                <div className="form-section">
-                  <h3 className="form-section-title">SEO Settings</h3>
-                  <p className="form-section-description">Optimize your portfolio for search engines</p>
-                </div>
-
-                <div className="form-container">
-                  <div className="form-group">
-                    <label className="form-label">Meta Title</label>
-                    <input
-                      type="text"
-                      name="metaTitle"
-                      value={settings.metaTitle}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Meta Description</label>
-                    <textarea
-                      name="metaDescription"
-                      value={settings.metaDescription}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="form-textarea"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Meta Keywords</label>
-                    <input
-                      type="text"
-                      name="metaKeywords"
-                      value={settings.metaKeywords}
-                      onChange={handleInputChange}
-                      placeholder="Separate keywords with commas"
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Features */}
-            {activeTab === "features" && (
-              <div>
-                <div className="form-section">
-                  <h3 className="form-section-title">Features</h3>
-                  <p className="form-section-description">Enable or disable portfolio features</p>
-                </div>
-
-                <div className="form-container features-container">
-                  {[
-                    { name: "showProjects", label: "Show Projects Section" },
-                    { name: "showSkills", label: "Show Skills Section" },
-                    { name: "showContact", label: "Show Contact Section" },
-                    { name: "showBlog", label: "Show Blog Section" },
-                    { name: "enableAnimations", label: "Enable Animations" },
-                    { name: "enableParticles", label: "Enable Particle Effects" },
-                  ].map((feature) => (
-                    <div key={feature.name} className="form-checkbox">
-                      <input
-                        type="checkbox"
-                        name={feature.name}
-                        checked={settings[feature.name as keyof typeof settings] as boolean}
-                        onChange={handleInputChange}
-                      />
-                      <label>{feature.label}</label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Save Button */}
             <div className="form-actions">
-              <button type="submit" className="custom-primary-btn">
-                <i className="fas fa-save me-2"></i>
-                Save Settings
+              <button 
+                type="submit" 
+                className="custom-primary-btn"
+                disabled={isSubmitting || loading}
+              >
+                {isSubmitting ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin me-2"></i>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save me-2"></i>
+                    Save Settings
+                  </>
+                )}
               </button>
             </div>
           </form>
