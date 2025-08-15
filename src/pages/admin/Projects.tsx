@@ -181,56 +181,30 @@ const Projects: React.FC = () => {
             <h2>Projects Management</h2>
             <p>Manage your portfolio projects and showcase your work</p>
           </div>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <button className="custom-primary-btn" onClick={() => setShowModal(true)}>
             <i className="fas fa-plus me-2"></i>
             Add New Project
           </button>
         </div>
 
         {/* Filters Section */}
-        <div className="content-card" style={{ marginBottom: "2rem" }}>
-          <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ flex: "1", minWidth: "250px" }}>
-              <div style={{ position: "relative" }}>
-                <i
-                  className="fas fa-search"
-                  style={{
-                    position: "absolute",
-                    left: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "var(--text-muted)",
-                  }}
-                ></i>
-                <input
-                  type="text"
-                  placeholder="Search projects..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 0.75rem 0.75rem 2.5rem",
-                    background: "var(--secondary-bg)",
-                    border: "1px solid var(--border-color)",
-                    borderRadius: "8px",
-                    color: "var(--text-primary)",
-                    fontSize: "0.9rem",
-                  }}
-                />
-              </div>
+        <div className="content-card filters-card">
+          <div className="filters-container">
+            <div className="search-container">
+              <i className="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             <select
+              className="form-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              style={{
-                padding: "0.75rem",
-                background: "var(--secondary-bg)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "8px",
-                color: "var(--text-primary)",
-                fontSize: "0.9rem",
-                minWidth: "150px",
-              }}
+              style={{ minWidth: "150px" }}
             >
               <option value="">All Categories</option>
               {categories.map((category) => (
@@ -243,39 +217,20 @@ const Projects: React.FC = () => {
         </div>
 
         {/* Projects Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "1.5rem" }}>
+        <div className="items-grid">
           {filteredProjects.length > 0 ? (
             filteredProjects.map((project) => (
-              <div key={project.id} className="content-card" style={{ padding: "0", overflow: "hidden" }}>
-                <div style={{ position: "relative" }}>
+              <div key={project.id} className="content-card item-card">
+                <div className="item-card-image">
                   <img
                     src={project.mainImage || "/placeholder.svg"}
                     alt={project.title}
-                    style={{ width: "100%", height: "200px", objectFit: "cover" }}
                   />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "0",
-                      left: "0",
-                      right: "0",
-                      bottom: "0",
-                      background: "rgba(0, 0, 0, 0.7)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.5rem",
-                      opacity: "0",
-                      transition: "opacity 0.3s ease",
-                    }}
-                    className="project-overlay"
-                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "0")}
-                  >
-                    <button className="btn btn-primary btn-sm">
+                  <div className="project-overlay">
+                    <button className="custom-primary-btn btn-sm" onClick={() => handleEdit(project)}>
                       <i className="fas fa-edit"></i>
                     </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(project.id)}>
+                    <button className="custom-btn-danger  " onClick={() => handleDelete(project.id)}>
                       <i className="fas fa-trash"></i>
                     </button>
                     {project.demoUrl && (
@@ -293,90 +248,46 @@ const Projects: React.FC = () => {
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn btn-secondary btn-sm"
+                        className="custom-secondary-btn"
                       >
                         <i className="fab fa-github"></i>
                       </a>
                     )}
                   </div>
                 </div>
-                <div style={{ padding: "1.5rem" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: "1rem",
-                    }}
-                  >
-                    <h3 style={{ color: "var(--text-primary)", fontSize: "1.25rem", fontWeight: "600", margin: "0" }}>
-                      {project.title}
-                    </h3>
-                    <span
-                      style={{
-                        background: "var(--accent-primary)",
-                        color: "white",
-                        padding: "0.25rem 0.75rem",
-                        borderRadius: "12px",
-                        fontSize: "0.75rem",
-                        fontWeight: "500",
-                      }}
-                    >
-                      {project.category}
-                    </span>
+                <div className="item-card-content">
+                  <div className="project-header">
+                    <h3 className="item-card-title">{project.title}</h3>
+                    <span className="item-card-category">{project.category}</span>
                   </div>
-                  <p
-                    style={{
-                      color: "var(--text-secondary)",
-                      fontSize: "0.9rem",
-                      lineHeight: "1.5",
-                      marginBottom: "1rem",
-                    }}
-                  >
+                  <p className="item-card-description">
                     {project.description.length > 120
                       ? `${project.description.substring(0, 120)}...`
                       : project.description}
                   </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <div className="project-tech-tags">
                     {project.technologies?.slice(0, 3).map((tech, index) => (
-                      <span
-                        key={index}
-                        style={{
-                          background: "var(--secondary-bg)",
-                          color: "var(--text-muted)",
-                          padding: "0.25rem 0.5rem",
-                          borderRadius: "6px",
-                          fontSize: "0.75rem",
-                        }}
-                      >
+                      <span key={index} className="tech-tag">
                         {tech}
                       </span>
                     ))}
                     {project.technologies && project.technologies.length > 3 && (
-                      <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                      <span className="tech-more">
                         +{project.technologies.length - 3} more
                       </span>
                     )}
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
-                      <i className="fas fa-calendar me-1"></i>
-                      {new Date(project.completedDate).toLocaleDateString()}
-                    </span>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "1rem",
-                        color: "var(--text-muted)",
-                        fontSize: "0.875rem",
-                      }}
-                    >
+                  <div className="item-card-actions">
+                    <div className="item-card-meta">
+                      <div className="meta-item">
+                        <i className="fas fa-calendar"></i>
+                        {new Date(project.completedDate).toLocaleDateString()}
+                      </div>
                       {project.features && (
-                        <span>
-                          <i className="fas fa-list me-1"></i>
+                        <div className="meta-item">
+                          <i className="fas fa-list"></i>
                           {project.features.length} features
-                        </span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -392,7 +303,7 @@ const Projects: React.FC = () => {
                   ? "No projects match your current filters."
                   : "Create your first project to get started."}
               </p>
-              <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+              <button className="custom-primary-btn" onClick={() => setShowModal(true)}>
                 <i className="fas fa-plus me-2"></i>
                 Add New Project
               </button>

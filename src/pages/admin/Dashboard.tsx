@@ -255,7 +255,7 @@ const Dashboard: React.FC = () => {
                   <h4>No Projects Yet</h4>
                   <p>Create your first project to get started!</p>
                   <button 
-                    className="btn btn-primary"
+                    className="custom-primary-btn"
                     onClick={() => navigate('/admin/projects')}
                   >
                     Add Project

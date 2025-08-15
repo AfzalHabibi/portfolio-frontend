@@ -87,7 +87,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
               <i className="fas fa-external-link-alt me-2"></i>
               View Portfolio
             </button>
-            <button className="btn btn-secondary" onClick={handleLogout}>
+            <button className="custom-secondary-btn" onClick={handleLogout}>
               <i className="fas fa-sign-out-alt me-2"></i>
               Logout
             </button>

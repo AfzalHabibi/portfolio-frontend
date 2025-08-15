@@ -1,67 +1,8 @@
-/* Bootstrap Integration - Override Bootstrap modal styles for dark theme */
-/* @import url("https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"); */
-
-/* Dark theme overrides for Bootstrap components */
-.admin-app .modal-content {
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
-}
-
-.admin-app .modal-header {
-  border-bottom: 1px solid var(--border-color) !important;
-}
-
-.admin-app .modal-footer {
-  border-top: 1px solid var(--border-color) !important;
-}
-
-.admin-app .form-control {
-  background-color: var(--secondary-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
-}
-
-.admin-app .form-control:focus {
-  background-color: var(--secondary-bg) !important;
-  border-color: var(--accent-primary) !important;
-  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
-  color: var(--text-primary) !important;
-}
-
-.admin-app .form-select {
-  background-color: var(--secondary-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
-}
-
-.admin-app .form-select:focus {
-  background-color: var(--secondary-bg) !important;
-  border-color: var(--accent-primary) !important;
-  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
-  color: var(--text-primary) !important;
-}
-
-.admin-app .form-label {
-  color: var(--text-primary) !important;
-}
-
-.admin-app .nav-tabs .nav-link {
-  background-color: transparent !important;
-  border: none !important;
-  color: var(--text-muted) !important;
-}
-
-.admin-app .nav-tabs .nav-link.active {
-  background-color: transparent !important;
-  border-bottom: 2px solid var(--accent-primary) !important;
-  color: var(--accent-primary) !important;
-}
-
-/* Admin-specific scoped styles */
+/* ==========================================================================
+   CSS VARIABLES
+   ========================================================================== */
 .admin-app {
-  /* CSS Variables - Dark Theme Colors from Reference Image */
+  /* Color Variables - Dark Theme */
   --primary-bg: #1a1d29;
   --secondary-bg: #252836;
   --card-bg: #2d3142;
@@ -76,13 +17,17 @@
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
   --info-color: #3b82f6;
+  
+  /* Shadow Variables */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* Transition Variables */
   --transition-fast: all 0.15s ease;
   --transition-normal: all 0.3s ease;
 
-  /* Global Styles scoped to admin */
+  /* Global Styles */
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--primary-bg);
   color: var(--text-primary);
@@ -96,14 +41,701 @@
   box-sizing: border-box;
 }
 
-/* Admin Layout */
+/* ==========================================================================
+   BOOTSTRAP INTEGRATION
+   ========================================================================== */
+/* Bootstrap modal overrides */
+.admin-app .modal-content {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-app .modal-header {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.admin-app .modal-footer {
+  border-top: 1px solid var(--border-color) !important;
+}
+
+/* Bootstrap form overrides */
+.admin-app .form-control,
+.admin-app .form-select {
+  background-color: var(--secondary-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-app .form-control:focus,
+.admin-app .form-select:focus {
+  background-color: var(--secondary-bg) !important;
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-app .form-label {
+  color: var(--text-primary) !important;
+}
+
+/* Bootstrap nav tabs */
+.admin-app .nav-tabs .nav-link {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+}
+
+.admin-app .nav-tabs .nav-link.active {
+  background-color: transparent !important;
+  border-bottom: 2px solid var(--accent-primary) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* ==========================================================================
+   FORM STYLES
+   ========================================================================== */
+/* Form layout */
+.admin-app .form-group {
+  margin-bottom: 1rem;
+}
+
+.admin-app .form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-app .form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.admin-app .form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-app .form-grid-1 {
+  margin-bottom: 1rem;
+}
+
+.admin-app .form-actions {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* Form labels */
+.admin-app .form-label {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Form inputs */
+.admin-app .form-input,
+.admin-app .form-textarea,
+.admin-app .form-select {
+  width: 100%;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 15px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.admin-app .form-input:focus,
+.admin-app .form-textarea:focus,
+.admin-app .form-select:focus {
+  outline: none;
+  background: var(--secondary-bg);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25), 0 0 15px rgba(99, 102, 241, 0.1);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.admin-app .form-input::placeholder,
+.admin-app .form-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.admin-app .form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Form sections */
+.admin-app .form-section {
+  margin-bottom: 2rem;
+}
+
+.admin-app .form-section-title {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.admin-app .form-section-description {
+  color: var(--text-muted);
+  margin: 0 0 1.5rem 0;
+}
+
+/* Checkbox inputs */
+.admin-app .form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-app .form-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent-primary);
+}
+
+.admin-app .form-checkbox label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* Color inputs */
+.admin-app .form-color {
+  width: 60px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.admin-app .form-color:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25), 0 0 15px rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+.admin-app .color-input-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.admin-app .color-input-group .form-color {
+  flex-shrink: 0;
+}
+
+.admin-app .color-input-group .form-input {
+  flex: 1;
+}
+
+/* Range inputs */
+.admin-app .form-range {
+  width: 100%;
+  height: 8px;
+  background: var(--secondary-bg);
+  border-radius: 6px;
+  outline: none;
+  appearance: none;
+  border: 1px solid var(--border-color);
+  transition: var(--transition-fast);
+}
+
+.admin-app .form-range:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25), 0 0 10px rgba(99, 102, 241, 0.1);
+}
+
+.admin-app .form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.admin-app .form-range::-webkit-slider-thumb:hover {
+  background: #5855eb;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+}
+
+.admin-app .form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition-fast);
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.admin-app .form-range::-moz-range-thumb:hover {
+  background: #5855eb;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+}
+
+.admin-app .range-display {
+  text-align: center;
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Array inputs */
+.admin-app .array-input-group {
+  margin-bottom: 1rem;
+}
+
+.admin-app .array-input-item {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.admin-app .array-input-item .form-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.admin-app .array-add-btn {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: var(--transition-fast);
+}
+
+.admin-app .array-add-btn:hover {
+  background: #5855eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+}
+
+.admin-app .array-remove-btn {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.admin-app .array-remove-btn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
+}
+
+/* Search inputs */
+.admin-app .search-container {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.admin-app .search-input {
+  width: 100%;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 15px 12px 2.5rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.admin-app .search-input:focus {
+  outline: none;
+  background: var(--secondary-bg);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25), 0 0 15px rgba(99, 102, 241, 0.1);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.admin-app .search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.admin-app .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   BUTTON STYLES
+   ========================================================================== */
+/* Base button styles */
+.admin-app button,
+.admin-app .btn {
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-app button:disabled,
+.admin-app .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.admin-app button:hover,
+.admin-app .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.admin-app button:active,
+.admin-app .btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Primary button */
+.admin-app .custom-primary-btn {
+  background: linear-gradient(135deg, var(--accent-primary), #5855eb);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.admin-app .custom-primary-btn:hover {
+  background: linear-gradient(135deg, #5855eb, #4c49d6);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* Secondary button */
+.admin-app .custom-secondary-btn {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.admin-app .custom-secondary-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+/* Outline primary button */
+.admin-app .btn-outline-primary {
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  background: transparent;
+}
+
+.admin-app .btn-outline-primary:hover {
+  background: var(--accent-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* Success button */
+.admin-app .btn-success {
+  background: linear-gradient(135deg, var(--success-color), #059669);
+  color: white;
+}
+
+.admin-app .btn-success:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+/* Warning button */
+.admin-app .btn-warning {
+  background: linear-gradient(135deg, var(--warning-color), #d97706);
+  color: white;
+}
+
+.admin-app .btn-warning:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+/* Danger button */
+.admin-app .custom-btn-danger {
+  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  color: white;
+}
+
+.admin-app .custom-btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Info button */
+.admin-app .btn-info {
+  background: var(--info-color);
+  color: white;
+}
+
+/* Edit and delete buttons */
+.admin-app .btn-edit {
+  background: linear-gradient(135deg, var(--accent-primary), #5855eb);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-app .btn-edit:hover {
+  background: linear-gradient(135deg, #5855eb, #4c49d6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.admin-app .btn-edit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-app .btn-delete {
+  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-app .btn-delete:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.admin-app .btn-delete:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon buttons */
+.admin-app .btn-icon {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+}
+
+.admin-app .btn-icon:hover {
+  background: var(--accent-primary);
+  color: white;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.admin-app .btn-icon:active {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Link button */
+.admin-app .btn-link {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.admin-app .btn-link:hover {
+  color: var(--accent-secondary);
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+.admin-app .btn-link:active {
+  transform: translateY(0);
+}
+
+/* Header action buttons */
+.header-actions .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hamburger button */
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: var(--transition-fast);
+}
+
+.hamburger-btn:hover {
+  background: var(--hover-bg);
+}
+
+/* Sidebar close button */
+.admin-app .sidebar-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: var(--transition-fast);
+}
+
+.admin-app .sidebar-close:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+/* /BUTTON STYLES */
+
+/* ==========================================================================
+   LAYOUT STYLES
+   ========================================================================== */
+/* Admin layout */
 .admin-app .admin-layout {
   display: flex;
   min-height: 100vh;
   background: var(--primary-bg);
 }
 
-/* Sidebar Styles */
+/* Main content */
+.admin-app .admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Content area */
+.admin-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Dashboard content */
+.dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Filter and layout containers */
+.admin-app .filters-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-app .items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.admin-app .add-button-container {
+  margin-bottom: 2rem;
+  text-align: right;
+}
+
+.admin-app .filters-card {
+  margin-bottom: 2rem;
+}
+
+/* Content grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* Features container */
+.admin-app .features-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ==========================================================================
+   SIDEBAR STYLES
+   ========================================================================== */
+/* Sidebar container */
 .admin-app .admin-sidebar {
   width: 280px;
   background: var(--secondary-bg);
@@ -122,6 +754,7 @@
   transform: translateX(0);
 }
 
+/* Sidebar header */
 .admin-app .sidebar-header {
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
@@ -137,22 +770,7 @@
   margin: 0;
 }
 
-.admin-app .sidebar-close {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: var(--transition-fast);
-}
-
-.admin-app .sidebar-close:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
+/* Sidebar navigation */
 .admin-app .sidebar-nav {
   padding: 1rem 0;
 }
@@ -200,16 +818,30 @@
   text-align: center;
 }
 
-/* Main Content */
-.admin-app .admin-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 100vh;
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition-normal);
 }
 
-/* Header */
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+/* /SIDEBAR STYLES */
+
+/* ==========================================================================
+   HEADER STYLES
+   ========================================================================== */
+/* Main header */
 .admin-header {
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-color);
@@ -222,25 +854,11 @@
   z-index: 100;
 }
 
+/* Header sections */
 .header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.hamburger-btn {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: var(--transition-fast);
-}
-
-.hamburger-btn:hover {
-  background: var(--hover-bg);
 }
 
 .page-title {
@@ -249,49 +867,46 @@
   color: var(--text-primary);
   margin: 0;
 }
+/* /HEADER STYLES */
 
-.header-actions .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: var(--transition-fast);
-  border: none;
-  cursor: pointer;
+/* ==========================================================================
+   CARD STYLES
+   ========================================================================== */
+/* Base card styles */
+.admin-app .item-card {
+  padding: 0;
+  overflow: hidden;
 }
 
-.btn-primary {
-  background: var(--accent-primary);
-  color: white;
+.content-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
 }
 
-.btn-primary:hover {
-  background: #5855eb;
+/* Card headers */
+.card-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.btn-outline-primary {
-  border: 1px solid var(--accent-primary);
-  color: var(--accent-primary);
-  background: transparent;
+.card-header h3 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
 }
 
-.btn-outline-primary:hover {
-  background: var(--accent-primary);
-  color: white;
+.card-header p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.875rem;
 }
 
-/* Content Area */
-.admin-content {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-/* Dashboard Specific Styles */
-.dashboard-content {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
+/* Welcome section */
 .welcome-section {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -315,52 +930,7 @@
   margin: 0;
 }
 
-.quick-stats {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 1rem;
-  transition: var(--transition-bounce);
-  cursor: pointer;
-  border-radius: 15px;
-}
-
-.stat-item:hover {
-  transform: translateY(-10px) scale(1.05);
-  background: rgba(255, 107, 53, 0.05);
-  box-shadow: var(--shadow-medium);
-}
-
-.stat-number {
-  display: block;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--accent-primary);
-}
-
-.stat-label {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: var(--border-color);
-}
-
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
+/* Stats card */
 .stat-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -390,6 +960,102 @@
   letter-spacing: 0.5px;
 }
 
+/* Action card */
+.action-card {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: left;
+}
+
+.action-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-content h4 {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.action-content p {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+/* Item card (projects/skills) */
+.admin-app .item-card-image {
+  position: relative;
+}
+
+.admin-app .item-card-image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.admin-app .item-card-content {
+  padding: 1.5rem;
+}
+
+.admin-app .item-card-title {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-app .item-card-category {
+  background: var(--secondary-bg);
+  color: var(--text-muted);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.admin-app .item-card-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 1rem 0;
+}
+
+.admin-app .item-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-app .item-card-meta {
+  display: flex;
+  gap: 1rem;
+}
+
+.admin-app .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+/* /CARD STYLES */
+
+/* ==========================================================================
+   ICON STYLES
+   ========================================================================== */
+/* Stat icons */
 .stat-icon {
   width: 40px;
   height: 40px;
@@ -412,6 +1078,136 @@
 }
 .stat-card.info .stat-icon {
   background: var(--info-color);
+}
+
+/* Action icons */
+.action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+}
+
+.action-card.primary .action-icon {
+  background: var(--accent-primary);
+}
+.action-card.success .action-icon {
+  background: var(--success-color);
+}
+.action-card.warning .action-icon {
+  background: var(--warning-color);
+}
+.action-card.info .action-icon {
+  background: var(--info-color);
+}
+
+/* Activity icons */
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.activity-icon.primary {
+  background: var(--accent-primary);
+}
+.activity-icon.success {
+  background: var(--success-color);
+}
+.activity-icon.warning {
+  background: var(--warning-color);
+}
+.activity-icon.info {
+  background: var(--info-color);
+}
+
+/* Skill icon */
+.admin-app .skill-icon {
+  width: 45px;
+  height: 45px;
+  background: var(--accent-primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+/* Social icon */
+.admin-app .social-icon {
+  width: 45px;
+  height: 45px;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+/* /ICON STYLES */
+
+/* ==========================================================================
+   STATS AND METRICS STYLES
+   ========================================================================== */
+/* Quick stats */
+.quick-stats {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  border-radius: 15px;
+}
+
+.stat-item:hover {
+  transform: translateY(-10px) scale(1.05);
+  background: rgba(255, 107, 53, 0.05);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border-color);
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .stat-value {
@@ -437,116 +1233,190 @@
   color: var(--text-muted);
 }
 
-/* Content Grid */
-.content-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.content-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.card-header {
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header h3 {
-  color: var(--text-primary);
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.card-header p {
-  color: var(--text-muted);
-  margin: 0;
-  font-size: 0.875rem;
-}
-
-.btn-link {
-  background: none;
-  border: none;
-  color: var(--accent-primary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.btn-link:hover {
-  color: var(--accent-secondary);
-}
-
-/* Quick Actions */
+/* Quick actions grid */
 .quick-actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
+/* /STATS AND METRICS STYLES */
 
-.action-card {
+/* ==========================================================================
+   SKILL SPECIFIC STYLES
+   ========================================================================== */
+.admin-app .skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.admin-app .skill-level-container {
+  margin: 1rem 0;
+}
+
+.admin-app .skill-level-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.admin-app .skill-level-bar {
+  width: 100%;
+  height: 8px;
   background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  text-align: left;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.action-card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+.admin-app .skill-level-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
 }
 
-.action-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1rem;
-}
-
-.action-card.primary .action-icon {
-  background: var(--accent-primary);
-}
-.action-card.success .action-icon {
+.admin-app .skill-level-fill.expert {
   background: var(--success-color);
 }
-.action-card.warning .action-icon {
+
+.admin-app .skill-level-fill.advanced {
   background: var(--warning-color);
 }
-.action-card.info .action-icon {
+
+.admin-app .skill-level-fill.intermediate {
   background: var(--info-color);
 }
 
-.action-content h4 {
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0 0 0.25rem 0;
+.admin-app .skill-level-fill.beginner {
+  background: var(--text-muted);
 }
 
-.action-content p {
+.admin-app .skill-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-app .skill-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.admin-app .level-badge {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  color: white;
+}
+
+.admin-app .level-badge.success {
+  background: var(--success-color);
+}
+
+.admin-app .level-badge.warning {
+  background: var(--warning-color);
+}
+
+.admin-app .level-badge.info {
+  background: var(--info-color);
+}
+
+.admin-app .level-badge.secondary {
+  background: var(--text-muted);
+}
+/* /SKILL SPECIFIC STYLES */
+
+/* ==========================================================================
+   TAB STYLES
+   ========================================================================== */
+/* Settings tabs */
+.admin-app .settings-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-app .tab-button {
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.admin-app .tab-button.active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.admin-app .tab-button:hover {
+  color: var(--text-primary);
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+}
+
+.admin-app .tab-button:active {
+  transform: translateY(0);
+}
+/* /TAB STYLES */
+
+/* ==========================================================================
+   PROJECT SPECIFIC STYLES
+   ========================================================================== */
+.admin-app .project-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.admin-app .item-card:hover .project-overlay {
+  opacity: 1;
+}
+
+.admin-app .project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.admin-app .project-tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-app .tech-tag {
+  background: var(--secondary-bg);
+  color: var(--text-muted);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.admin-app .tech-more {
   color: var(--text-muted);
   font-size: 0.75rem;
-  margin: 0;
 }
 
-/* Projects List */
+/* Projects list */
 .projects-list {
   display: flex;
   flex-direction: column;
@@ -590,7 +1460,7 @@
 
 .project-info {
   flex: 1;
-  min-width: 0; /* Prevents flex item from overflowing */
+  min-width: 0;
 }
 
 .project-info h4 {
@@ -608,6 +1478,7 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -647,83 +1518,27 @@
   flex-shrink: 0;
   align-self: flex-start;
 }
+/* /PROJECT SPECIFIC STYLES */
 
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: var(--hover-bg);
-  color: var(--text-secondary);
-  border-radius: 8px;
+/* ==========================================================================
+   SOCIAL LINKS STYLES
+   ========================================================================== */
+.admin-app .social-links-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  font-size: 0.9rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.btn-icon:hover {
-  background: var(--accent-primary);
-  color: white;
-  transform: scale(1.05);
+.admin-app .social-link-item {
+  display: flex;
+  align-items: end;
+  gap: 1rem;
 }
+/* /SOCIAL LINKS STYLES */
 
-/* Responsive adjustments for projects list */
-@media (max-width: 768px) {
-  .project-item {
-    padding: 1rem;
-    gap: 0.75rem;
-  }
-  
-  .project-image {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .project-info h4 {
-    font-size: 0.9rem;
-  }
-  
-  .project-info p {
-    font-size: 0.8rem;
-    -webkit-line-clamp: 1;
-  }
-  
-  .project-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .project-date::before {
-    display: none;
-  }
-  
-  .btn-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .project-item {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .project-actions {
-    align-self: flex-end;
-    margin-top: 0.5rem;
-  }
-  
-  .project-info {
-    width: 100%;
-  }
-}
-
-/* Activity List */
+/* ==========================================================================
+   ACTIVITY STYLES
+   ========================================================================== */
 .activity-list {
   display: flex;
   flex-direction: column;
@@ -736,31 +1551,6 @@
   gap: 1rem;
 }
 
-.activity-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.activity-icon.primary {
-  background: var(--accent-primary);
-}
-.activity-icon.success {
-  background: var(--success-color);
-}
-.activity-icon.warning {
-  background: var(--warning-color);
-}
-.activity-icon.info {
-  background: var(--info-color);
-}
-
 .activity-content p {
   color: var(--text-primary);
   font-size: 0.875rem;
@@ -771,8 +1561,12 @@
   color: var(--text-muted);
   font-size: 0.75rem;
 }
+/* /ACTIVITY STYLES */
 
-/* Loading States */
+/* ==========================================================================
+   LOADING AND EMPTY STATES
+   ========================================================================== */
+/* Loading states */
 .loading-spinner {
   width: 20px;
   height: 20px;
@@ -800,7 +1594,7 @@
   }
 }
 
-/* Empty States */
+/* Empty states */
 .empty-state {
   text-align: center;
   padding: 2rem;
@@ -817,11 +1611,37 @@
   color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
+/* /LOADING AND EMPTY STATES */
 
-/* Responsive Design */
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
 @media (max-width: 768px) {
+  .admin-app .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-app .color-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-app .social-link-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-app .settings-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .admin-app .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
   .admin-main.sidebar-open {
-    margin-left: 0; /* Ensure no margin on mobile */
+    margin-left: 0;
   }
 
   .welcome-section {
@@ -849,6 +1669,42 @@
   .admin-content {
     padding: 1rem;
   }
+
+  .project-item {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .project-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .project-info h4 {
+    font-size: 0.9rem;
+  }
+  
+  .project-info p {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+  
+  .project-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .project-date::before {
+    display: none;
+  }
+  
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -861,60 +1717,19 @@
     width: 40px;
     height: 1px;
   }
-}
 
-/* Overlay for mobile sidebar - make it more prominent */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
-  opacity: 0;
-  visibility: hidden;
-  transition: var(--transition-normal);
+  .project-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .project-actions {
+    align-self: flex-end;
+    margin-top: 0.5rem;
+  }
+  
+  .project-info {
+    width: 100%;
+  }
 }
-
-.sidebar-overlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Ensure sidebar is above overlay */
-.admin-sidebar {
-  z-index: 1000;
-}
-
-/* Additional utility classes */
-.btn-secondary {
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-}
-
-.btn-secondary:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
-}
-
-.btn-success {
-  background: var(--success-color);
-  color: white;
-}
-
-.btn-warning {
-  background: var(--warning-color);
-  color: white;
-}
-
-.btn-danger {
-  background: var(--danger-color);
-  color: white;
-}
-
-.btn-info {
-  background: var(--info-color);
-  color: white;
-}
+/* /RESPONSIVE DESIGN */

@@ -178,53 +178,32 @@ const SkillsManager: React.FC = () => {
         </div>
 
         {/* Add Skill Button */}
-        <div style={{ marginBottom: "2rem", textAlign: "right" }}>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+        <div className="add-button-container">
+          <button className="custom-primary-btn" onClick={() => setShowModal(true)}>
             <i className="fas fa-plus me-2"></i>
             Add Skill
           </button>
         </div>
 
         {/* Skills Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "1.5rem" }}>
+        <div className="items-grid">
           {skills.length > 0 ? (
             skills.map((skill) => (
               <div key={skill.id} className="content-card">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "1rem",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "45px",
-                      height: "45px",
-                      background: "var(--accent-primary)",
-                      borderRadius: "10px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                      fontSize: "1.1rem",
-                    }}
-                  >
+                <div className="skill-header">
+                  <div className="skill-icon">
                     <i className={skill.icon || "fas fa-code"}></i>
                   </div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div className="skill-actions">
                     <button
-                      className="btn-icon"
+                      className="btn-icon btn-edit"
                       onClick={() => handleEdit(skill)}
-                      style={{ background: "var(--accent-primary)", color: "white" }}
                     >
                       <i className="fas fa-edit"></i>
                     </button>
                     <button
-                      className="btn-icon"
+                      className="btn-icon btn-delete"
                       onClick={() => handleDelete(skill.id)}
-                      style={{ background: "var(--danger-color)", color: "white" }}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
@@ -232,89 +211,29 @@ const SkillsManager: React.FC = () => {
                 </div>
 
                 <div>
-                  <h5
-                    style={{
-                      color: "var(--text-primary)",
-                      fontSize: "1.25rem",
-                      fontWeight: "600",
-                      margin: "0 0 0.25rem 0",
-                    }}
-                  >
-                    {skill.name}
-                  </h5>
-                  <span
-                    style={{
-                      background: "var(--secondary-bg)",
-                      color: "var(--text-muted)",
-                      padding: "0.25rem 0.75rem",
-                      borderRadius: "20px",
-                      fontSize: "0.8rem",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {skill.category}
-                  </span>
+                  <h5 className="item-card-title">{skill.name}</h5>
+                  <span className="item-card-category">{skill.category}</span>
 
-                  <div style={{ margin: "1rem 0" }}>
-                    <div
-                      style={{
-                        height: "8px",
-                        background: "var(--secondary-bg)",
-                        borderRadius: "4px",
-                        overflow: "hidden",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
+                  <div className="skill-level-container">
+                    <div className="skill-level-bar">
                       <div
-                        style={{
-                          height: "100%",
-                          width: `${skill.level * 10}%`,
-                          background: `var(--${getLevelColor(skill.level)}-color)`,
-                          transition: "width 0.3s ease",
-                        }}
+                        className={`skill-level-fill ${getLevelText(skill.level).toLowerCase()}`}
+                        style={{ width: `${skill.level * 10}%` }}
                       ></div>
                     </div>
-                    <span
-                      style={{
-                        fontSize: "0.8rem",
-                        padding: "0.25rem 0.75rem",
-                        borderRadius: "12px",
-                        background: `var(--${getLevelColor(skill.level)}-color)`,
-                        color: "white",
-                      }}
-                    >
+                    <span className={`level-badge ${getLevelColor(skill.level)}`}>
                       {getLevelText(skill.level)} ({skill.level}/10)
                     </span>
                   </div>
 
-                  <p
-                    style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: "1.5", margin: "1rem 0" }}
-                  >
-                    {skill.description}
-                  </p>
+                  <p className="item-card-description">{skill.description}</p>
 
-                  <div style={{ display: "flex", gap: "1rem" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        color: "var(--text-muted)",
-                        fontSize: "0.85rem",
-                      }}
-                    >
+                  <div className="skill-stats">
+                    <div className="meta-item">
                       <i className="fas fa-calendar-alt"></i>
                       <span>{skill.yearsOfExperience} years</span>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        color: "var(--text-muted)",
-                        fontSize: "0.85rem",
-                      }}
-                    >
+                    <div className="meta-item">
                       <i className="fas fa-project-diagram"></i>
                       <span>{skill.projects} projects</span>
                     </div>
@@ -327,7 +246,7 @@ const SkillsManager: React.FC = () => {
               <i className="fas fa-code"></i>
               <h4>No Skills Added</h4>
               <p>Start building your skills portfolio by adding your first skill.</p>
-              <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+              <button className="custom-primary-btn" onClick={() => setShowModal(true)}>
                 <i className="fas fa-plus me-2"></i>
                 Add Your First Skill
               </button>
@@ -399,19 +318,9 @@ const SkillsManager: React.FC = () => {
 
               <form onSubmit={handleSubmit}>
                 <div style={{ padding: "1.5rem", overflowY: "auto", flex: "1" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          color: "var(--text-primary)",
-                          fontWeight: "500",
-                          marginBottom: "0.5rem",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        Skill Name *
-                      </label>
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Skill Name *</label>
                       <input
                         type="text"
                         name="name"
@@ -419,43 +328,17 @@ const SkillsManager: React.FC = () => {
                         onChange={handleInputChange}
                         required
                         placeholder="e.g., React.js"
-                        style={{
-                          width: "100%",
-                          padding: "0.75rem",
-                          background: "var(--secondary-bg)",
-                          border: "1px solid var(--border-color)",
-                          borderRadius: "8px",
-                          color: "var(--text-primary)",
-                          fontSize: "0.9rem",
-                        }}
+                        className="form-input"
                       />
                     </div>
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          color: "var(--text-primary)",
-                          fontWeight: "500",
-                          marginBottom: "0.5rem",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        Category *
-                      </label>
+                    <div className="form-group">
+                      <label className="form-label">Category *</label>
                       <select
                         name="category"
                         value={formData.category}
                         onChange={handleInputChange}
                         required
-                        style={{
-                          width: "100%",
-                          padding: "0.75rem",
-                          background: "var(--secondary-bg)",
-                          border: "1px solid var(--border-color)",
-                          borderRadius: "8px",
-                          color: "var(--text-primary)",
-                          fontSize: "0.9rem",
-                        }}
+                        className="form-select"
                       >
                         <option value="">Select Category</option>
                         {categories.map((cat) => (
@@ -467,19 +350,9 @@ const SkillsManager: React.FC = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          color: "var(--text-primary)",
-                          fontWeight: "500",
-                          marginBottom: "0.5rem",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        Skill Level (1-10) *
-                      </label>
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Skill Level (1-10) *</label>
                       <input
                         type="range"
                         name="level"
@@ -487,101 +360,40 @@ const SkillsManager: React.FC = () => {
                         max="10"
                         value={formData.level}
                         onChange={handleInputChange}
-                        style={{
-                          width: "100%",
-                          height: "6px",
-                          background: "var(--secondary-bg)",
-                          borderRadius: "3px",
-                          outline: "none",
-                          appearance: "none",
-                        }}
+                        className="form-range"
                       />
-                      <div
-                        style={{
-                          textAlign: "center",
-                          marginTop: "0.5rem",
-                          color: "var(--text-muted)",
-                          fontSize: "0.85rem",
-                        }}
-                      >
+                      <div className="range-display">
                         {formData.level}/10 - {getLevelText(formData.level)}
                       </div>
                     </div>
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          color: "var(--text-primary)",
-                          fontWeight: "500",
-                          marginBottom: "0.5rem",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        Icon Class
-                      </label>
+                    <div className="form-group">
+                      <label className="form-label">Icon Class</label>
                       <input
                         type="text"
                         name="icon"
                         value={formData.icon}
                         onChange={handleInputChange}
                         placeholder="e.g., fab fa-react"
-                        style={{
-                          width: "100%",
-                          padding: "0.75rem",
-                          background: "var(--secondary-bg)",
-                          border: "1px solid var(--border-color)",
-                          borderRadius: "8px",
-                          color: "var(--text-primary)",
-                          fontSize: "0.9rem",
-                        }}
+                        className="form-input"
                       />
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: "1rem" }}>
-                    <label
-                      style={{
-                        display: "block",
-                        color: "var(--text-primary)",
-                        fontWeight: "500",
-                        marginBottom: "0.5rem",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      Description
-                    </label>
+                  <div className="form-group">
+                    <label className="form-label">Description</label>
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
                       rows={3}
                       placeholder="Brief description of your experience with this skill..."
-                      style={{
-                        width: "100%",
-                        padding: "0.75rem",
-                        background: "var(--secondary-bg)",
-                        border: "1px solid var(--border-color)",
-                        borderRadius: "8px",
-                        color: "var(--text-primary)",
-                        fontSize: "0.9rem",
-                        resize: "vertical",
-                      }}
+                      className="form-textarea"
                     />
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          color: "var(--text-primary)",
-                          fontWeight: "500",
-                          marginBottom: "0.5rem",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        Years of Experience
-                      </label>
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label className="form-label">Years of Experience</label>
                       <input
                         type="number"
                         name="yearsOfExperience"
@@ -589,61 +401,27 @@ const SkillsManager: React.FC = () => {
                         onChange={handleInputChange}
                         min="0"
                         step="0.5"
-                        style={{
-                          width: "100%",
-                          padding: "0.75rem",
-                          background: "var(--secondary-bg)",
-                          border: "1px solid var(--border-color)",
-                          borderRadius: "8px",
-                          color: "var(--text-primary)",
-                          fontSize: "0.9rem",
-                        }}
+                        className="form-input"
                       />
                     </div>
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          color: "var(--text-primary)",
-                          fontWeight: "500",
-                          marginBottom: "0.5rem",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        Projects Count
-                      </label>
+                    <div className="form-group">
+                      <label className="form-label">Projects Count</label>
                       <input
                         type="number"
                         name="projects"
                         value={formData.projects}
                         onChange={handleInputChange}
                         min="0"
-                        style={{
-                          width: "100%",
-                          padding: "0.75rem",
-                          background: "var(--secondary-bg)",
-                          border: "1px solid var(--border-color)",
-                          borderRadius: "8px",
-                          color: "var(--text-primary)",
-                          fontSize: "0.9rem",
-                        }}
+                        className="form-input"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    padding: "1.5rem",
-                    borderTop: "1px solid var(--border-color)",
-                    display: "flex",
-                    gap: "1rem",
-                    justifyContent: "flex-end",
-                  }}
-                >
+                <div className="form-actions">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="custom-secondary-btn"
                     onClick={() => {
                       setShowModal(false)
                       resetForm()
@@ -651,7 +429,7 @@ const SkillsManager: React.FC = () => {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="custom-primary-btn">
                     {editingSkill ? "Update Skill" : "Add Skill"}
                   </button>
                 </div>

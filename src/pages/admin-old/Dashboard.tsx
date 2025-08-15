@@ -243,7 +243,7 @@ const Dashboard: React.FC = () => {
                     <i className="fas fa-folder-open fa-3x mb-3"></i>
                     <p>No projects found. Create your first project!</p>
                     <button 
-                      className="btn btn-primary"
+                      className="custom-primary-btn"
                       onClick={() => navigate('/admin/projects')}
                     >
                       <i className="fas fa-plus me-2"></i>

@@ -239,7 +239,7 @@ const Projects: React.FC = () => {
                 <p className="text-muted">Manage your portfolio projects</p>
               </div>
               <button
-                className="btn btn-primary"
+                className="custom-primary-btn"
                 onClick={() => setShowModal(true)}
               >
                 <i className="fas fa-plus me-2"></i>
@@ -308,7 +308,7 @@ const Projects: React.FC = () => {
               <h4>No Projects Found</h4>
               <p className="text-muted">Create your first project to get started.</p>
               <button
-                className="btn btn-primary"
+                className="custom-primary-btn"
                 onClick={() => setShowModal(true)}
               >
                 <i className="fas fa-plus me-2"></i>
@@ -540,7 +540,7 @@ const Projects: React.FC = () => {
                 <div className="modal-footer">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="custom-secondary-btn"
                     onClick={() => {
                       setShowModal(false);
                       resetForm();
@@ -550,7 +550,7 @@ const Projects: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="custom-primary-btn"
                     disabled={actionLoading}
                   >
                     {actionLoading ? (
