@@ -763,7 +763,16 @@
 /* Admin layout */
 .admin-app .admin-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
+  background: var(--primary-bg);
+}
+
+/* Admin content area */
+.admin-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
   background: var(--primary-bg);
 }
 

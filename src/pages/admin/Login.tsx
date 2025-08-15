@@ -1,16 +1,33 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { loginUser, clearError } from "../../store/slices/authSlice"
+import type { AppDispatch, RootState } from "../../store/store"
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   })
-  const [loading, setLoading] = useState(false)
+  
+  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
+  const { loading, error, isAuthenticated } = useSelector((state: RootState) => state.auth)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin/dashboard")
+    }
+  }, [isAuthenticated, navigate])
+
+  // Clear any existing errors when component mounts
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -22,13 +39,16 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-
-    // Simulate login process
-    setTimeout(() => {
-      setLoading(false)
-      navigate("/admin/dashboard")
-    }, 1000)
+    
+    try {
+      const result = await dispatch(loginUser(formData))
+      if (loginUser.fulfilled.match(result)) {
+        navigate("/admin/dashboard")
+      }
+    } catch (error) {
+      // Error is handled by the Redux slice
+      console.error("Login failed:", error)
+    }
   }
 
   return (
@@ -75,6 +95,26 @@ const Login: React.FC = () => {
           </h2>
           <p style={{ color: "var(--text-muted)", margin: "0" }}>Sign in to manage your portfolio</p>
         </div>
+
+        {error && (
+          <div
+            style={{
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+              borderRadius: "8px",
+              padding: "0.75rem",
+              marginBottom: "1.5rem",
+              color: "#ef4444",
+              fontSize: "0.9rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <i className="fas fa-exclamation-triangle"></i>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "1rem" }}>

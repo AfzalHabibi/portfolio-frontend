@@ -1,4 +1,5 @@
 import React from "react"
+import { useLocation } from "react-router-dom"
 import "../styles/admin.css"
 
 interface AdminLayoutWrapperProps {
@@ -6,7 +7,13 @@ interface AdminLayoutWrapperProps {
 }
 
 const AdminLayoutWrapper: React.FC<AdminLayoutWrapperProps> = ({ children }) => {
-  return <>{children}</>
+  const location = useLocation()
+
+  return (
+      <>
+        {children}
+      </>
+  )
 }
 
 export default AdminLayoutWrapper

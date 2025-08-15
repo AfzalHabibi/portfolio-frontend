@@ -3,6 +3,9 @@
 import type React from "react"
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { logout } from "../../store/slices/authSlice"
+import type { AppDispatch } from "../../store/store"
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -13,9 +16,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const dispatch = useDispatch<AppDispatch>()
 
   const handleLogout = () => {
-    // Add your logout logic here
+    dispatch(logout())
     navigate("/admin/login")
   }
 
