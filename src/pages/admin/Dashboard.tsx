@@ -48,7 +48,7 @@ const Dashboard: React.FC = () => {
         {/* Welcome Section */}
         <div className="welcome-section">
           <div className="welcome-text">
-            <h2>Welcome back, {user?.email?.split('@')[0] || 'Admin'}! 👋</h2>
+            <h2>Welcome back, {user?.email?.split('@')[0] || 'Admin'}</h2>
             <p>Here's what's happening with your portfolio today.</p>
           </div>
           <div className="quick-stats">
