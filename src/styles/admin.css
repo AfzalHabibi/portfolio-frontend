@@ -323,6 +323,16 @@
 
 .stat-item {
   text-align: center;
+  padding: 1rem;
+  transition: var(--transition-bounce);
+  cursor: pointer;
+  border-radius: 15px;
+}
+
+.stat-item:hover {
+  transform: translateY(-10px) scale(1.05);
+  background: rgba(255, 107, 53, 0.05);
+  box-shadow: var(--shadow-medium);
 }
 
 .stat-number {

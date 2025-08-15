@@ -297,7 +297,7 @@ const SettingsManager: React.FC = () => {
                     { name: "twitter", icon: "fab fa-twitter", label: "Twitter" },
                     { name: "instagram", icon: "fab fa-instagram", label: "Instagram" },
                   ].map((social) => (
-                    <div key={social.name} style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div key={social.name} style={{ display: "flex", alignItems: "end", gap: "1rem" }}>
                       <div
                         style={{
                           width: "45px",
