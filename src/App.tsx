@@ -4,6 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Provider } from "react-redux"
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { store } from "./store/store"
 import NavBar from "./components/NavBar"
 import PublicLayout from "./components/PublicLayout"
@@ -49,6 +51,20 @@ const App: React.FC = () => {
             <Route path="/admin/skills" element={<AdminLayoutWrapper><AdminSkills /></AdminLayoutWrapper>} />
             <Route path="/admin/settings" element={<AdminLayoutWrapper><AdminSettings /></AdminLayoutWrapper>} />
           </Routes>
+          
+          {/* Toast Container for notifications */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
         </div>
       </Router>
     </Provider>
