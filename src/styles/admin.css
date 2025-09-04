@@ -840,7 +840,7 @@
    ========================================================================== */
 /* Sidebar container */
 .admin-app .admin-sidebar {
-  width: 280px;
+  width: 250px;
   background: var(--secondary-bg);
   border-right: 1px solid var(--border-color);
   position: fixed;
