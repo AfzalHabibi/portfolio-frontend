@@ -8,16 +8,22 @@ import { RootState, AppDispatch } from '../../store/store'
 import { 
   fetchProjects, 
   createProject, 
+  createProjectWithFiles,
   updateProjectById, 
+  updateProjectWithFiles,
   deleteProjectById,
   clearError,
   clearSelectedProject
 } from '../../store/slices/projectSlice'
 import { Project } from '../../types'
-import { CreateProjectData } from '../../services/projectService'
+import { CreateProjectData, CreateProjectWithFilesData, UpdateProjectWithFilesData } from '../../services/projectService'
 import AdminLayout from './AdminLayout'
 import CustomModal from '../../components/CustomModal'
+import ImageUpload from '../../components/ImageUpload'
+import ImageGallery from '../../components/ImageGallery'
 import Loader from '../../components/Loader'
+import '../../styles/imageUpload.css'
+import '../../styles/imageGallery.css'
 
 const Projects: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -47,6 +53,17 @@ const Projects: React.FC = () => {
     images: [],
     videos: []
   })
+
+  // Image handling state
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null)
+  const [additionalImageFiles, setAdditionalImageFiles] = useState<File[]>([])
+  const [videoFiles, setVideoFiles] = useState<File[]>([])
+  const [useFileUpload, setUseFileUpload] = useState(false)
+  
+  // Existing images for editing
+  const [existingMainImage, setExistingMainImage] = useState<string>("")
+  const [existingImages, setExistingImages] = useState<Array<{id: string, url: string, name?: string}>>([])
+  const [existingVideos, setExistingVideos] = useState<Array<{id: string, url: string, name?: string}>>([])
 
   const categories = ["Web Development", "Mobile Development", "Desktop Application", "UI/UX Design", "Other"]
 
@@ -111,6 +128,30 @@ const Projects: React.FC = () => {
     }))
   }, [])
 
+  // Image handling functions
+  const handleMainImageChange = useCallback((files: File[], existingImages: Array<{id: string, url: string, name?: string}>) => {
+    setMainImageFile(files[0] || null)
+  }, [])
+
+  const handleAdditionalImagesChange = useCallback((files: File[], existingImages: Array<{id: string, url: string, name?: string}>) => {
+    setAdditionalImageFiles(files)
+    setExistingImages(existingImages)
+  }, [])
+
+  const handleVideosChange = useCallback((files: File[], existingVideos: Array<{id: string, url: string, name?: string}>) => {
+    setVideoFiles(files)
+    setExistingVideos(existingVideos)
+  }, [])
+
+  const resetImageStates = useCallback(() => {
+    setMainImageFile(null)
+    setAdditionalImageFiles([])
+    setVideoFiles([])
+    setExistingMainImage("")
+    setExistingImages([])
+    setExistingVideos([])
+  }, [])
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -120,22 +161,99 @@ const Projects: React.FC = () => {
       return
     }
 
-    try {
-      const projectData: CreateProjectData = {
-        ...formData,
-        features: formData.features.filter(f => f.trim()),
-        technologies: formData.technologies.filter(t => t.trim()),
-      }
+    // Validate main image
+    if (useFileUpload && !mainImageFile && !existingMainImage && !editingProject?.mainImage) {
+      toast.error('Please provide a main image')
+      return
+    } else if (!useFileUpload && !formData.mainImage.trim()) {
+      toast.error('Please provide a main image URL')
+      return
+    }
 
-      if (editingProject) {
-        await dispatch(updateProjectById({ 
-          id: editingProject.id, 
-          projectData 
-        })).unwrap()
-        toast.success('Project updated successfully!')
+    try {
+      if (useFileUpload) {
+        // Handle file uploads
+        if (editingProject) {
+          // Update with files
+          const updateData: UpdateProjectWithFilesData = {
+            title: formData.title,
+            description: formData.description,
+            longDescription: formData.longDescription,
+            features: formData.features.filter(f => f.trim()),
+            technologies: formData.technologies.filter(t => t.trim()),
+            category: formData.category,
+            completedDate: formData.completedDate,
+            demoUrl: formData.demoUrl,
+            githubUrl: formData.githubUrl,
+            clientRemarks: formData.clientRemarks,
+            existingImages: existingImages.map(img => img.url),
+            existingVideos: existingVideos.map(vid => vid.url)
+          }
+
+          if (mainImageFile) {
+            updateData.mainImage = mainImageFile
+          }
+          if (additionalImageFiles.length > 0) {
+            updateData.images = additionalImageFiles
+          }
+          if (videoFiles.length > 0) {
+            updateData.videos = videoFiles
+          }
+
+          await dispatch(updateProjectWithFiles({ 
+            id: editingProject.id, 
+            projectData: updateData 
+          })).unwrap()
+          toast.success('Project updated successfully!')
+        } else {
+          // Create with files
+          if (!mainImageFile) {
+            toast.error('Please provide a main image file')
+            return
+          }
+
+          const createData: CreateProjectWithFilesData = {
+            title: formData.title,
+            description: formData.description,
+            longDescription: formData.longDescription,
+            features: formData.features.filter(f => f.trim()),
+            technologies: formData.technologies.filter(t => t.trim()),
+            category: formData.category,
+            completedDate: formData.completedDate,
+            demoUrl: formData.demoUrl,
+            githubUrl: formData.githubUrl,
+            clientRemarks: formData.clientRemarks,
+            mainImage: mainImageFile
+          }
+
+          if (additionalImageFiles.length > 0) {
+            createData.images = additionalImageFiles
+          }
+          if (videoFiles.length > 0) {
+            createData.videos = videoFiles
+          }
+
+          await dispatch(createProjectWithFiles(createData)).unwrap()
+          toast.success('Project created successfully!')
+        }
       } else {
-        await dispatch(createProject(projectData)).unwrap()
-        toast.success('Project created successfully!')
+        // Handle URL inputs
+        const projectData: CreateProjectData = {
+          ...formData,
+          features: formData.features.filter(f => f.trim()),
+          technologies: formData.technologies.filter(t => t.trim()),
+        }
+
+        if (editingProject) {
+          await dispatch(updateProjectById({ 
+            id: editingProject.id, 
+            projectData 
+          })).unwrap()
+          toast.success('Project updated successfully!')
+        } else {
+          await dispatch(createProject(projectData)).unwrap()
+          toast.success('Project created successfully!')
+        }
       }
 
       resetForm()
@@ -143,7 +261,7 @@ const Projects: React.FC = () => {
     } catch (error: any) {
       toast.error(error.message || 'An error occurred')
     }
-  }, [dispatch, editingProject, formData])
+  }, [dispatch, editingProject, formData, useFileUpload, mainImageFile, additionalImageFiles, videoFiles, existingMainImage, existingImages, existingVideos])
 
   const resetForm = useCallback(() => {
     setFormData({
@@ -162,7 +280,9 @@ const Projects: React.FC = () => {
       videos: []
     })
     setEditingProject(null)
-  }, [])
+    resetImageStates()
+    setUseFileUpload(false)
+  }, [resetImageStates])
 
   const closeModal = useCallback(() => {
     setShowModal(false)
@@ -186,6 +306,24 @@ const Projects: React.FC = () => {
       images: project.images || [],
       videos: project.videos || []
     })
+    
+    // Set existing images for file upload mode
+    setExistingMainImage(project.mainImage || "")
+    setExistingImages(
+      project.images?.map((url, index) => ({
+        id: `existing-${index}`,
+        url,
+        name: `Image ${index + 1}`
+      })) || []
+    )
+    setExistingVideos(
+      project.videos?.map((url, index) => ({
+        id: `existing-video-${index}`,
+        url,
+        name: `Video ${index + 1}`
+      })) || []
+    )
+    
     setShowModal(true)
   }, [])
 
@@ -428,7 +566,75 @@ const Projects: React.FC = () => {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Main Image URL</label>
+                <label className="form-label">Image Upload Method</label>
+                <div className="upload-method-toggle">
+                  <label className="toggle-option">
+                    <input
+                      type="radio"
+                      name="uploadMethod"
+                      checked={!useFileUpload}
+                      onChange={() => setUseFileUpload(false)}
+                    />
+                    <span>Image URLs</span>
+                  </label>
+                  <label className="toggle-option">
+                    <input
+                      type="radio"
+                      name="uploadMethod"
+                      checked={useFileUpload}
+                      onChange={() => setUseFileUpload(true)}
+                    />
+                    <span>File Upload</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Image Upload Section */}
+            {useFileUpload ? (
+              <div className="image-upload-section">
+                {/* Main Image Upload */}
+                <ImageUpload
+                  label="Main Image"
+                  multiple={false}
+                  maxFiles={1}
+                  maxFileSize={10}
+                  existingImages={existingMainImage ? [{
+                    id: 'main-existing',
+                    url: existingMainImage,
+                    name: 'Main Image'
+                  }] : []}
+                  onImagesChange={handleMainImageChange}
+                  required={!editingProject}
+                  className="main-image-upload"
+                />
+
+                {/* Additional Images Upload */}
+                <ImageUpload
+                  label="Additional Images"
+                  multiple={true}
+                  maxFiles={10}
+                  maxFileSize={10}
+                  existingImages={existingImages}
+                  onImagesChange={handleAdditionalImagesChange}
+                  className="additional-images-upload"
+                />
+
+                {/* Videos Upload */}
+                <ImageUpload
+                  label="Project Videos"
+                  multiple={true}
+                  maxFiles={5}
+                  maxFileSize={50}
+                  acceptedFormats={['video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm']}
+                  existingImages={existingVideos}
+                  onImagesChange={handleVideosChange}
+                  className="videos-upload"
+                />
+              </div>
+            ) : (
+              <div className="form-group">
+                <label className="form-label">Main Image URL *</label>
                 <input
                   type="url"
                   name="mainImage"
@@ -436,9 +642,10 @@ const Projects: React.FC = () => {
                   value={formData.mainImage}
                   onChange={handleInputChange}
                   placeholder="https://example.com/image.jpg"
+                  required
                 />
               </div>
-            </div>
+            )}
 
             <div className="form-grid-2">
               <div className="form-group">
@@ -558,79 +765,145 @@ const ProjectCard = React.memo<{
   onDelete: (id: string, title: string) => void
   formatDate: (date: string) => string
   actionLoading: boolean
-}>(({ project, onEdit, onDelete, formatDate, actionLoading }) => (
-  <div className="content-card item-card">
-    <div className="item-card-image">
-      <img
-        src={project.mainImage || ""}
-        alt={project.title}
-      />
-      <div className="project-overlay">
-        <button 
-          className="btn-icon" 
-          onClick={() => onEdit(project)}
-          disabled={actionLoading}
-          title="Edit Project"
-        >
-          <i className="fas fa-edit"></i>
-        </button>
-        <button 
-          className="btn-icon" 
-          onClick={() => onDelete(project.id, project.title)}
-          disabled={actionLoading}
-          title="Delete Project"
-        >
-          <i className="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    <div className="item-card-content">
-      <div className="project-header">
-        <h3 className="item-card-title">{project.title}</h3>
-        <span className="item-card-category">{project.category}</span>
-      </div>
-      <p className="item-card-description">
-        {project.description}
-      </p>
-      <div className="project-tech-tags">
-        {project.technologies?.slice(0, 3).map((tech, index) => (
-          <span key={index} className="tech-tag">
-            {tech}
-          </span>
-        ))}
-        {project.technologies && project.technologies.length > 3 && (
-          <span className="tech-more">
-            +{project.technologies.length - 3} more
-          </span>
+}>(({ project, onEdit, onDelete, formatDate, actionLoading }) => {
+  // Prepare gallery images
+  const galleryImages = React.useMemo(() => {
+    const images = [];
+    
+    // Add main image
+    if (project.mainImage) {
+      images.push({
+        id: 'main',
+        url: project.mainImage,
+        name: 'Main Image',
+        type: 'image' as const
+      });
+    }
+    
+    // Add additional images
+    if (project.images && project.images.length > 0) {
+      project.images.forEach((url, index) => {
+        images.push({
+          id: `image-${index}`,
+          url,
+          name: `Image ${index + 1}`,
+          type: 'image' as const
+        });
+      });
+    }
+    
+    // Add videos
+    if (project.videos && project.videos.length > 0) {
+      project.videos.forEach((url, index) => {
+        images.push({
+          id: `video-${index}`,
+          url,
+          name: `Video ${index + 1}`,
+          type: 'video' as const
+        });
+      });
+    }
+    
+    return images;
+  }, [project.mainImage, project.images, project.videos]);
+
+  return (
+    <div className="content-card item-card">
+      <div className="item-card-image">
+        <img
+          src={project.mainImage || ""}
+          alt={project.title}
+        />
+        <div className="project-overlay">
+          <button 
+            className="btn-icon" 
+            onClick={() => onEdit(project)}
+            disabled={actionLoading}
+            title="Edit Project"
+          >
+            <i className="fas fa-edit"></i>
+          </button>
+          <button 
+            className="btn-icon" 
+            onClick={() => onDelete(project.id, project.title)}
+            disabled={actionLoading}
+            title="Delete Project"
+          >
+            <i className="fas fa-trash"></i>
+          </button>
+        </div>
+        
+        {/* Image count badge */}
+        {galleryImages.length > 1 && (
+          <div className="image-count-badge">
+            <i className="fas fa-images"></i>
+            {galleryImages.length}
+          </div>
         )}
       </div>
-      <div className="item-card-actions">
-        <div className="item-card-meta">
-          <div className="meta-item">
-            <i className="fas fa-calendar"></i>
-            {formatDate(project.completedDate)}
+      
+      <div className="item-card-content">
+        <div className="project-header">
+          <h3 className="item-card-title">{project.title}</h3>
+          <span className="item-card-category">{project.category}</span>
+        </div>
+        
+        <p className="item-card-description">
+          {project.description}
+        </p>
+        
+        {/* Image Gallery Preview */}
+        {galleryImages.length > 1 && (
+          <div className="project-media-preview">
+            <ImageGallery
+              images={galleryImages}
+              maxPreviewCount={4}
+              className="card-gallery"
+            />
           </div>
-          {project.demoUrl && (
-            <div className="meta-item">
-              <i className="fas fa-external-link-alt"></i>
-              <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
-                Demo
-              </a>
-            </div>
+        )}
+        
+        <div className="project-tech-tags">
+          {project.technologies?.slice(0, 3).map((tech, index) => (
+            <span key={index} className="tech-tag">
+              {tech}
+            </span>
+          ))}
+          {project.technologies && project.technologies.length > 3 && (
+            <span className="tech-more">
+              +{project.technologies.length - 3} more
+            </span>
           )}
-          {project.githubUrl && (
+        </div>
+        
+        <div className="item-card-actions">
+          <div className="item-card-meta">
             <div className="meta-item">
-              <i className="fab fa-github"></i>
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                Code
-              </a>
+              <i className="fas fa-calendar"></i>
+              {formatDate(project.completedDate)}
             </div>
-          )}
+            {project.demoUrl && (
+              <div className="meta-item">
+                <i className="fas fa-external-link-alt"></i>
+                <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                  Demo
+                </a>
+              </div>
+            )}
+            {project.githubUrl && (
+              <div className="meta-item">
+                <i className="fab fa-github"></i>
+                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                  Code
+                </a>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-))
+  );
+})
 
 ProjectCard.displayName = 'ProjectCard'
 

@@ -8,13 +8,47 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, index = 0 }) => {
+  // Calculate total media count
+  const totalImages = (project.images?.length || 0) + (project.mainImage ? 1 : 0);
+  const totalVideos = project.videos?.length || 0;
+  const totalMedia = totalImages + totalVideos;
+
   return (
     <div className="col-lg-4 col-md-6 mb-4 animate-stagger" style={{ "--stagger-delay": index } as React.CSSProperties}>
       <div className="project-card card-hover-effect-2">
         <div className="position-relative overflow-hidden">
-          <img src={project.mainImage || "https://thumbs.dreamstime.com/b/abstract-design-website-hero-section-background-features-vibrant-blue-fluid-lines-geometric-shapes-circles-351935047.jpg"} alt={project.title} className="project-image" />
+          <img 
+            src={project.mainImage || "https://thumbs.dreamstime.com/b/abstract-design-website-hero-section-background-features-vibrant-blue-fluid-lines-geometric-shapes-circles-351935047.jpg"} 
+            alt={project.title} 
+            className="project-image" 
+          />
+          
+          {/* Category Badge */}
           <div className="position-absolute top-0 end-0 p-3">
             <span className="badge bg-primary">{project.category}</span>
+          </div>
+          
+          {/* Media Count Badge */}
+          {totalMedia > 1 && (
+            <div className="position-absolute top-0 start-0 p-3">
+              <div className="media-count-badge">
+                <i className="fas fa-images"></i>
+                <span>{totalMedia}</span>
+                {totalVideos > 0 && (
+                  <div className="video-indicator">
+                    <i className="fas fa-video"></i>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Project Overlay */}
+          <div className="project-overlay">
+            <Link to={`/projects/${project.id}`} className="view-project-btn">
+              <i className="fas fa-eye"></i>
+              View Project
+            </Link>
           </div>
         </div>
 
@@ -42,7 +76,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index = 0 }) => {
                   href={project.demoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-decoration-none"
+                  className="text-decoration-none project-link"
                   title="Live Demo"
                 >
                   <i className="fas fa-external-link-alt text-primary"></i>
@@ -53,7 +87,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index = 0 }) => {
                   href={project.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-decoration-none"
+                  className="text-decoration-none project-link"
                   title="GitHub Repository"
                 >
                   <i className="fab fa-github text-primary"></i>

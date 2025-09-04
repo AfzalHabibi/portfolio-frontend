@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Project } from '../../types';
-import projectService, { CreateProjectData, CreateProjectWithFilesData } from '../../services/projectService';
+import projectService, { CreateProjectData, CreateProjectWithFilesData, UpdateProjectWithFilesData } from '../../services/projectService';
 
 interface ProjectState {
   projects: Project[];
@@ -60,6 +60,18 @@ export const createProjectWithFiles = createAsyncThunk(
   async (projectData: CreateProjectWithFilesData, { rejectWithValue }) => {
     try {
       const project = await projectService.createProjectWithFiles(projectData);
+      return project;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateProjectWithFiles = createAsyncThunk(
+  'projects/updateProjectWithFiles',
+  async ({ id, projectData }: { id: string; projectData: UpdateProjectWithFilesData }, { rejectWithValue }) => {
+    try {
+      const project = await projectService.updateProjectWithFiles(id, projectData);
       return project;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -162,6 +174,27 @@ const projectSlice = createSlice({
         state.error = null;
       })
       .addCase(createProjectWithFiles.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload as string;
+      })
+      
+      // Update project with files
+      .addCase(updateProjectWithFiles.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(updateProjectWithFiles.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const index = state.projects.findIndex(p => p.id === action.payload.id);
+        if (index !== -1) {
+          state.projects[index] = action.payload;
+        }
+        if (state.selectedProject && state.selectedProject.id === action.payload.id) {
+          state.selectedProject = action.payload;
+        }
+        state.error = null;
+      })
+      .addCase(updateProjectWithFiles.rejected, (state, action) => {
         state.actionLoading = false;
         state.error = action.payload as string;
       })
