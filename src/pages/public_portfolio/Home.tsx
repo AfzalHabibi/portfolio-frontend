@@ -8,6 +8,7 @@ import ProjectCard from "../../components/ProjectCard"
 import Loader from "../../components/Loader"
 import AnimatedText from "../../components/AnimatedText"
 import TestimonialSlider from "../../components/TestimonialSlider"
+import SkillsComponent from "../../components/SkillsComponent"
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true)
@@ -47,17 +48,6 @@ const Home: React.FC = () => {
   if (loading) {
     return <Loader />
   }
-
-  const skills = [
-    { name: "React.js", level: "Expert", icon: "fab fa-react", category: "Frontend" },
-    { name: "Node.js", level: "Expert", icon: "fab fa-node-js", category: "Backend" },
-    { name: "MongoDB", level: "Advanced", icon: "fas fa-database", category: "Database" },
-    { name: "PHP", level: "Expert", icon: "fab fa-php", category: "Backend" },
-    { name: "Laravel", level: "Advanced", icon: "fas fa-code", category: "Framework" },
-    { name: "React Native", level: "Advanced", icon: "fab fa-react", category: "Mobile" },
-    { name: "JavaScript", level: "Expert", icon: "fab fa-js-square", category: "Language" },
-    { name: "TypeScript", level: "Advanced", icon: "fas fa-code", category: "Language" },
-  ]
 
   const testimonials = [
     {
@@ -160,23 +150,11 @@ const Home: React.FC = () => {
       {/* Skills Section */}
       <section className="section-padding animate-on-scroll" id="skills">
         <div className="container">
-          <h2 className="section-title">My Skills</h2>
-          <div className="row">
-            {skills.map((skill, index) => (
-              <div key={index} className="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div className="skill-item card-hover-effect">
-                  <div className="card-content">
-                    <div className="skill-icon">
-                      <i className={skill.icon}></i>
-                    </div>
-                    <h4 className="skill-name">{skill.name}</h4>
-                    <p className="skill-level">{skill.level}</p>
-                    <small className="text-muted">{skill.category}</small>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 className="section-title">My Skills & Expertise</h2>
+          <p className="section-subtitle text-center mb-5">
+            Comprehensive overview of my technical skills, experience levels, and professional accomplishments
+          </p>
+          <SkillsComponent showAllDetails={false} maxSkillsToShow={8} />
         </div>
       </section>
 
