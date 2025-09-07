@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
-import { 
-  fetchSkills, 
+import {
+  fetchSkills,
   createSkillDirect,
+  deleteSkillItem,
   clearError
 } from '../../store/slices/skillSlice'
 import { RootState, AppDispatch } from '../../store/store'
@@ -14,6 +15,8 @@ import { DirectSkillData } from '../../services/skillService'
 import AdminLayout from './AdminLayout'
 import CustomModal from '../../components/CustomModal'
 import Loader from '../../components/Loader'
+import { Link } from 'react-router-dom'
+import { Edit, Trash2 } from 'lucide-react'
 
 interface SkillFormData {
   name: string
@@ -111,7 +114,7 @@ const SkillsManager: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.name.trim() || !formData.category.trim() || !formData.experience.trim() || !formData.description.trim()) {
       toast.error('Please fill in all required fields')
       return
@@ -120,7 +123,7 @@ const SkillsManager: React.FC = () => {
     try {
       const skillData = convertFormDataToDirectSkillData(formData)
       const resultAction = await dispatch(createSkillDirect(skillData))
-      
+
       if (createSkillDirect.fulfilled.match(resultAction)) {
         toast.success('Skill created successfully!')
         closeModal()
@@ -134,7 +137,7 @@ const SkillsManager: React.FC = () => {
     }
   }
 
-  const handleDeleteSkill = async (skillId: string, skillName: string) => {
+  const handleDeleteSkill = async (categoryId: string, itemId: string, skillName: string) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: `Do you want to delete "${skillName}"? This action cannot be undone.`,
@@ -147,18 +150,45 @@ const SkillsManager: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        // TODO: Implement delete functionality when needed
-        toast.success('Skill deleted successfully!')
+        const resultAction = await dispatch(deleteSkillItem({ categoryId, itemId }))
+        
+        if (deleteSkillItem.fulfilled.match(resultAction)) {
+          toast.success('Skill deleted successfully!')
+          dispatch(fetchSkills(false)) // Refresh the skills list
+        } else {
+          toast.error('Failed to delete skill')
+        }
       } catch (error) {
         console.error('Error deleting skill:', error)
+        toast.error('An error occurred while deleting the skill')
       }
     }
   }
 
-  const openModal = (skillId?: string) => {
-    if (skillId) {
+  const openModal = (skillId?: string, itemId?: string) => {
+    if (skillId && itemId) {
       setEditingSkill(skillId)
-      // TODO: Load skill data for editing when needed
+      // TODO: Load skill item data for editing when needed
+      // Find the specific skill item and populate the form
+      const skill = skills.find(s => (s.id || s._id) === skillId)
+      const item = skill?.items?.find(i => i._id === itemId)
+      if (item) {
+        setFormData({
+          name: item.name,
+          category: skill?.category || '',
+          keywords: item.keywords?.join(', ') || '',
+          proficiency: item.proficiency,
+          experience: item.experience,
+          description: item.description,
+          projects: item.projects?.join(', ') || '',
+          certifications: item.certifications?.join(', ') || '',
+          tools_used: item.tools_used?.join(', ') || '',
+          best_practices: item.best_practices?.join(', ') || '',
+          achievements: item.achievements?.join(', ') || '',
+          icon: item.icon || '',
+          color: item.color || '#3B82F6'
+        })
+      }
     } else {
       resetForm()
     }
@@ -179,7 +209,9 @@ const SkillsManager: React.FC = () => {
       )
     }
 
-    if (skills.length === 0) {
+    const totalSkillItems = skills.reduce((total, skill) => total + (skill.items?.length || 0), 0)
+
+    if (totalSkillItems === 0) {
       return (
         <div className="text-center py-12">
           <div className="mx-auto max-w-md">
@@ -204,99 +236,60 @@ const SkillsManager: React.FC = () => {
       )
     }
 
+
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {skills.map((skill) => (
-          <div
-            key={skill.id || skill._id}
-            className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{skill.category}</h3>
-                <p className="text-sm text-gray-600">
-                  {skill.items?.length || 0} skill{(skill.items?.length || 0) !== 1 ? 's' : ''}
-                </p>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => openModal(skill.id || skill._id)}
-                  className="text-blue-600 hover:text-blue-800 p-1"
-                  title="Edit"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => {
-                    const skillId = skill.id || skill._id
-                    if (skillId) {
-                      handleDeleteSkill(skillId, skill.category)
-                    }
-                  }}
-                  className="text-red-600 hover:text-red-800 p-1"
-                  title="Delete"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            {skill.items && skill.items.length > 0 && (
-              <div className="space-y-3">
-                {skill.items.slice(0, 3).map((item, index) => (
-                  <div key={index} className="border-l-4 border-blue-500 bg-blue-50 p-3 rounded-r">
-                    <div className="flex justify-between items-center mb-1">
-                      <h4 className="font-medium text-gray-900 text-sm">{item.name}</h4>
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        item.proficiency === 'Expert' ? 'bg-green-100 text-green-800' :
-                        item.proficiency === 'Advanced' ? 'bg-blue-100 text-blue-800' :
-                        item.proficiency === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {item.proficiency}
-                      </span>
+      <div className="table-container" >
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Skill Name</th>
+              <th>Category</th>
+              <th>Proficiency</th>
+              <th>Experience</th>
+              <th>
+                <div className="action-cell">
+                  Actions
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {skills.flatMap((skill) =>
+              skill.items?.map((item) => (
+                <tr key={`${skill.id || skill._id}-${item._id}`}>
+                  <td>{item.name}</td>
+                  <td>{skill.category}</td>
+                  <td>{item.proficiency}</td>
+                  <td>{item.experience}</td>
+                  <td>
+                    <div className="action-cell">
+                      <button
+                        onClick={() => openModal(skill.id || skill._id, item._id)}
+                        title="Edit"
+                        className="edit-button"
+                      >
+                        <Edit size={18} />
+                      </button>
+
+                      <button
+                        className="delete-button"
+                        onClick={() => {
+                          const categoryId = skill.id || skill._id
+                          const itemId = item._id
+                          if (categoryId && itemId) {
+                            handleDeleteSkill(categoryId, itemId, item.name)
+                          }
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
-                    <p className="text-xs text-gray-600 mb-2">{item.experience}</p>
-                    {item.keywords && item.keywords.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {item.keywords.slice(0, 3).map((keyword, kidx) => (
-                          <span
-                            key={kidx}
-                            className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
-                          >
-                            {keyword}
-                          </span>
-                        ))}
-                        {item.keywords.length > 3 && (
-                          <span className="text-xs text-gray-500">
-                            +{item.keywords.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {skill.items.length > 3 && (
-                  <p className="text-xs text-gray-500 text-center">
-                    +{skill.items.length - 3} more skills
-                  </p>
-                )}
-              </div>
+                  </td>
+                </tr>
+              )) || []
             )}
-            
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                skill.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {skill.isActive ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-          </div>
-        ))}
+          </tbody>
+        </table>
       </div>
     )
   }
@@ -311,7 +304,7 @@ const SkillsManager: React.FC = () => {
           </div>
           <button
             onClick={() => openModal()}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center space-x-2 shadow-lg transition-all"
+            className="custom-primary-btn"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -325,6 +318,7 @@ const SkillsManager: React.FC = () => {
         <CustomModal
           isOpen={isModalOpen}
           onClose={closeModal}
+          modalSize='modal-xl'
           title={editingSkill ? "Edit Skill" : "Add New Skill"}
         >
           <form onSubmit={handleSubmit} className="space-y-6">
