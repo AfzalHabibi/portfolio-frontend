@@ -4,7 +4,6 @@ import { useProjects } from '../../hooks/useApi';
 import Loader from '../../components/Loader';
 import ImageGallery from '../../components/ImageGallery';
 import '../../styles/imageGallery.css';
-import '../../styles/projectDetail.css';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

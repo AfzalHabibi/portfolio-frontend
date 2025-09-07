@@ -1,4 +1,5 @@
 import React from "react"
+import ThemeToggle from "./ThemeToggle"
 import "../styles/main.css"
 
 interface PublicLayoutProps {
@@ -6,7 +7,12 @@ interface PublicLayoutProps {
 }
 
 const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
-  return <>{children}</>
+  return (
+    <div className="public-portfolio">
+      {children}
+      <ThemeToggle />
+    </div>
+  )
 }
 
 export default PublicLayout
