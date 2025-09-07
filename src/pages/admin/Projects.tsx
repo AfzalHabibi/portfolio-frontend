@@ -5,11 +5,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import { RootState, AppDispatch } from '../../store/store'
-import { 
-  fetchProjects, 
-  createProject, 
+import {
+  fetchProjects,
+  createProject,
   createProjectWithFiles,
-  updateProjectById, 
+  updateProjectById,
   updateProjectWithFiles,
   deleteProjectById,
   clearError,
@@ -32,11 +32,11 @@ const Projects: React.FC = () => {
   // Modal and editing state
   const [showModal, setShowModal] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
-  
+
   // Form data state
   const [formData, setFormData] = useState<CreateProjectData>({
     title: "",
@@ -59,11 +59,11 @@ const Projects: React.FC = () => {
   const [additionalImageFiles, setAdditionalImageFiles] = useState<File[]>([])
   const [videoFiles, setVideoFiles] = useState<File[]>([])
   const [useFileUpload, setUseFileUpload] = useState(false)
-  
+
   // Existing images for editing
   const [existingMainImage, setExistingMainImage] = useState<string>("")
-  const [existingImages, setExistingImages] = useState<Array<{id: string, url: string, name?: string}>>([])
-  const [existingVideos, setExistingVideos] = useState<Array<{id: string, url: string, name?: string}>>([])
+  const [existingImages, setExistingImages] = useState<Array<{ id: string, url: string, name?: string }>>([])
+  const [existingVideos, setExistingVideos] = useState<Array<{ id: string, url: string, name?: string }>>([])
 
   const categories = ["Web Development", "Mobile Development", "Desktop Application", "UI/UX Design", "Other"]
 
@@ -85,7 +85,7 @@ const Projects: React.FC = () => {
   // Memoized filtered projects to prevent unnecessary recalculations
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesCategory = !selectedCategory || project.category === selectedCategory
@@ -129,16 +129,16 @@ const Projects: React.FC = () => {
   }, [])
 
   // Image handling functions
-  const handleMainImageChange = useCallback((files: File[], existingImages: Array<{id: string, url: string, name?: string}>) => {
+  const handleMainImageChange = useCallback((files: File[], existingImages: Array<{ id: string, url: string, name?: string }>) => {
     setMainImageFile(files[0] || null)
   }, [])
 
-  const handleAdditionalImagesChange = useCallback((files: File[], existingImages: Array<{id: string, url: string, name?: string}>) => {
+  const handleAdditionalImagesChange = useCallback((files: File[], existingImages: Array<{ id: string, url: string, name?: string }>) => {
     setAdditionalImageFiles(files)
     setExistingImages(existingImages)
   }, [])
 
-  const handleVideosChange = useCallback((files: File[], existingVideos: Array<{id: string, url: string, name?: string}>) => {
+  const handleVideosChange = useCallback((files: File[], existingVideos: Array<{ id: string, url: string, name?: string }>) => {
     setVideoFiles(files)
     setExistingVideos(existingVideos)
   }, [])
@@ -154,7 +154,7 @@ const Projects: React.FC = () => {
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate required fields
     if (!formData.title.trim() || !formData.description.trim() || !formData.category) {
       toast.error('Please fill in all required fields')
@@ -200,9 +200,9 @@ const Projects: React.FC = () => {
             updateData.videos = videoFiles
           }
 
-          await dispatch(updateProjectWithFiles({ 
-            id: editingProject.id, 
-            projectData: updateData 
+          await dispatch(updateProjectWithFiles({
+            id: editingProject.id,
+            projectData: updateData
           })).unwrap()
           toast.success('Project updated successfully!')
         } else {
@@ -245,9 +245,9 @@ const Projects: React.FC = () => {
         }
 
         if (editingProject) {
-          await dispatch(updateProjectById({ 
-            id: editingProject.id, 
-            projectData 
+          await dispatch(updateProjectById({
+            id: editingProject.id,
+            projectData
           })).unwrap()
           toast.success('Project updated successfully!')
         } else {
@@ -306,7 +306,7 @@ const Projects: React.FC = () => {
       images: project.images || [],
       videos: project.videos || []
     })
-    
+
     // Set existing images for file upload mode
     setExistingMainImage(project.mainImage || "")
     setExistingImages(
@@ -323,7 +323,7 @@ const Projects: React.FC = () => {
         name: `Video ${index + 1}`
       })) || []
     )
-    
+
     setShowModal(true)
   }, [])
 
@@ -343,7 +343,7 @@ const Projects: React.FC = () => {
       try {
         await dispatch(deleteProjectById(id)).unwrap()
         toast.success('Project deleted successfully!')
-        
+
         Swal.fire({
           title: 'Deleted!',
           text: 'Your project has been deleted.',
@@ -385,36 +385,26 @@ const Projects: React.FC = () => {
             <h2>Projects Management</h2>
             <p>Manage your portfolio projects and showcase your work</p>
           </div>
-          <div className="quick-stats">
-            <div className="stat-item">
-              <span className="stat-number">{stats.totalProjects}</span>
-              <span className="stat-label">Total Projects</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <span className="stat-number">{stats.totalCategories}</span>
-              <span className="stat-label">Categories</span>
-            </div>
+          {/* Add Project Button */}
+          <div className="add-button-container">
+            <button
+              className="custom-primary-btn"
+              onClick={() => setShowModal(true)}
+              disabled={actionLoading}
+              type="button"
+            >
+              <i className="fas fa-plus me-2"></i>
+              Add New Project
+            </button>
           </div>
         </div>
 
-        {/* Add Project Button */}
-        <div className="add-button-container">
-          <button 
-            className="custom-primary-btn" 
-            onClick={() => setShowModal(true)}
-            disabled={actionLoading}
-            type="button"
-          >
-            <i className="fas fa-plus me-2"></i>
-            Add New Project
-          </button>
-        </div>
+
 
         {/* Filters Section */}
         <div className="content-card filters-card">
-          <div className="filters-container">
-            <div className="search-container">
+          <div className="filters-container row">
+            <div className="search-container col-md-6">
               <i className="fas fa-search search-icon"></i>
               <input
                 type="text"
@@ -424,7 +414,8 @@ const Projects: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select
+            <div className='col-md-6'>
+              <select
               className="form-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -437,6 +428,7 @@ const Projects: React.FC = () => {
                 </option>
               ))}
             </select>
+            </div>
           </div>
         </div>
 
@@ -444,9 +436,9 @@ const Projects: React.FC = () => {
         <div className="items-grid">
           {filteredProjects.length > 0 ? (
             filteredProjects.map((project) => (
-              <ProjectCard 
-                key={project.id} 
-                project={project} 
+              <ProjectCard
+                key={project.id}
+                project={project}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 formatDate={formatDate}
@@ -458,8 +450,8 @@ const Projects: React.FC = () => {
               <i className="fas fa-folder-open"></i>
               <h4>No Projects Found</h4>
               <p>
-                {searchTerm || selectedCategory 
-                  ? 'No projects match your current filters.' 
+                {searchTerm || selectedCategory
+                  ? 'No projects match your current filters.'
                   : 'Start by adding your first project.'}
               </p>
             </div>
@@ -476,16 +468,16 @@ const Projects: React.FC = () => {
           modalSize="modal-lg"
           actions={
             <>
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                className="btn btn-secondary"
                 onClick={closeModal}
                 disabled={actionLoading}
               >
                 Cancel
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="custom-primary-btn"
                 form="project-form"
                 disabled={actionLoading}
@@ -769,7 +761,7 @@ const ProjectCard = React.memo<{
   // Prepare gallery images
   const galleryImages = React.useMemo(() => {
     const images = [];
-    
+
     // Add main image
     if (project.mainImage) {
       images.push({
@@ -779,7 +771,7 @@ const ProjectCard = React.memo<{
         type: 'image' as const
       });
     }
-    
+
     // Add additional images
     if (project.images && project.images.length > 0) {
       project.images.forEach((url, index) => {
@@ -791,7 +783,7 @@ const ProjectCard = React.memo<{
         });
       });
     }
-    
+
     // Add videos
     if (project.videos && project.videos.length > 0) {
       project.videos.forEach((url, index) => {
@@ -803,7 +795,7 @@ const ProjectCard = React.memo<{
         });
       });
     }
-    
+
     return images;
   }, [project.mainImage, project.images, project.videos]);
 
@@ -815,16 +807,16 @@ const ProjectCard = React.memo<{
           alt={project.title}
         />
         <div className="project-overlay">
-          <button 
-            className="btn-icon" 
+          <button
+            className="btn-icon"
             onClick={() => onEdit(project)}
             disabled={actionLoading}
             title="Edit Project"
           >
             <i className="fas fa-edit"></i>
           </button>
-          <button 
-            className="btn-icon" 
+          <button
+            className="btn-icon"
             onClick={() => onDelete(project.id, project.title)}
             disabled={actionLoading}
             title="Delete Project"
@@ -832,7 +824,7 @@ const ProjectCard = React.memo<{
             <i className="fas fa-trash"></i>
           </button>
         </div>
-        
+
         {/* Image count badge */}
         {galleryImages.length > 1 && (
           <div className="image-count-badge">
@@ -841,17 +833,17 @@ const ProjectCard = React.memo<{
           </div>
         )}
       </div>
-      
+
       <div className="item-card-content">
         <div className="project-header">
           <h3 className="item-card-title">{project.title}</h3>
           <span className="item-card-category">{project.category}</span>
         </div>
-        
+
         <p className="item-card-description">
           {project.description}
         </p>
-        
+
         <div className="project-tech-tags">
           {project.technologies?.slice(0, 3).map((tech, index) => (
             <span key={index} className="tech-tag">
@@ -864,7 +856,7 @@ const ProjectCard = React.memo<{
             </span>
           )}
         </div>
-        
+
         <div className="item-card-actions">
           <div className="item-card-meta">
             <div className="meta-item">
