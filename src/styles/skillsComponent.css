@@ -65,20 +65,24 @@
 /* Skills Grid */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  padding: 1rem 0;
 }
 
 .skill-card {
-  background: var(--background-card);
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 1rem;
   overflow: hidden;
-  transition: var(--transition-smooth);
+  transition: var(--transition-fast);
   cursor: pointer;
   position: relative;
   animation: fadeInUp 0.6s ease-out calc(var(--delay, 0) * 0.1s) both;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .skill-card::before {
@@ -87,8 +91,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-primary));
+  height: 4px;
+  background: var(--gradient-primary);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -98,37 +102,46 @@
 }
 
 .skill-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   border-color: var(--primary-color);
 }
 
 .skill-card-inner {
   padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Skill Header */
 .skill-header {
   display: flex;
   align-items: center;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .skill-icon {
-  font-size: 2rem;
+  font-size: 1.5rem;
   width: 3rem;
   height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(var(--primary-rgb), 0.1);
+  background: var(--background-light);
+  border: 2px solid var(--border-color);
   border-radius: 0.75rem;
-  margin-right: 1rem;
+  color: var(--primary-color);
   transition: var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .skill-card:hover .skill-icon {
+  background: var(--primary-color);
+  color: white;
   transform: scale(1.1) rotate(5deg);
+  border-color: var(--primary-color);
 }
 
 .skill-title h6 {
@@ -166,8 +179,8 @@
   font-size: 0.8rem;
   color: var(--text-muted);
   background: var(--background-light);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
   border: 1px solid var(--border-color);
 }
 
@@ -181,6 +194,7 @@
 
 .proficiency-fill {
   height: 100%;
+  background: var(--gradient-primary);
   border-radius: 3px;
   transition: width 1s ease-out 0.5s;
   position: relative;
@@ -299,7 +313,7 @@
 
 .summary-card {
   text-align: center;
-  background: var(--background-card);
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid var(--border-color);
@@ -355,7 +369,7 @@
 }
 
 .skill-modal-content {
-  background: var(--background-card);
+  background: var(--card-bg);
   border-radius: 1rem;
   width: 90%;
   max-width: 900px;

@@ -1,6 +1,28 @@
 import api from './api';
 import { Skill, CreateSkillData, UpdateSkillData, SkillItem } from '../types';
 
+export interface DirectSkillData {
+  name: string;
+  category: string;
+  keywords?: string[];
+  proficiency: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+  experience: string;
+  description: string;
+  projects?: string[];
+  certifications?: string[];
+  tools_used?: string[];
+  best_practices?: string[];
+  achievements?: string[];
+  version?: string;
+  methodologies?: string[];
+  performance_metrics?: string[];
+  used_in_roles?: string[];
+  difficulty_handled?: string;
+  endorsements?: string[];
+  icon?: string;
+  color?: string;
+}
+
 class SkillService {
   async getAllSkills(includeInactive = false): Promise<Skill[]> {
     try {
@@ -23,6 +45,18 @@ class SkillService {
       };
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch skill');
+    }
+  }
+
+  async createSkillDirect(skillData: DirectSkillData): Promise<Skill> {
+    try {
+      const response = await api.post('/skills/direct', skillData);
+      return {
+        ...response.data.skill,
+        id: response.data.skill._id,
+      };
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to create skill');
     }
   }
 

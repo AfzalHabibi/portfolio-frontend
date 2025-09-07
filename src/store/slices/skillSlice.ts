@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Skill, CreateSkillData, UpdateSkillData, SkillItem } from '../../types';
-import skillService from '../../services/skillService';
+import skillService, { DirectSkillData } from '../../services/skillService';
 
 interface SkillState {
   skills: Skill[];
@@ -46,6 +46,17 @@ export const createSkill = createAsyncThunk(
   async (skillData: CreateSkillData, { rejectWithValue }) => {
     try {
       return await skillService.createSkill(skillData);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createSkillDirect = createAsyncThunk(
+  'skills/createSkillDirect',
+  async (skillData: DirectSkillData, { rejectWithValue }) => {
+    try {
+      return await skillService.createSkillDirect(skillData);
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -183,6 +194,29 @@ const skillSlice = createSlice({
         state.skills.push(action.payload);
       })
       .addCase(createSkill.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Create skill direct
+    builder
+      .addCase(createSkillDirect.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(createSkillDirect.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        // Check if category already exists, update it; otherwise add new skill
+        const existingSkillIndex = state.skills.findIndex(skill => skill.category === action.payload.category);
+        if (existingSkillIndex !== -1) {
+          // Update existing skill category
+          state.skills[existingSkillIndex] = action.payload;
+        } else {
+          // Add new skill category
+          state.skills.push(action.payload);
+        }
+      })
+      .addCase(createSkillDirect.rejected, (state, action) => {
         state.actionLoading = false;
         state.error = action.payload as string;
       });

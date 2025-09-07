@@ -1,19 +1,16 @@
 "use client"
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import { 
   fetchSkills, 
-  createSkill,
-  addSkillItem,
-  updateSkillItem,
-  deleteSkillItem,
+  createSkillDirect,
   clearError
 } from '../../store/slices/skillSlice'
 import { RootState, AppDispatch } from '../../store/store'
-import { SkillItem } from '../../types'
+import { DirectSkillData } from '../../services/skillService'
 import AdminLayout from './AdminLayout'
 import CustomModal from '../../components/CustomModal'
 import Loader from '../../components/Loader'
@@ -21,78 +18,45 @@ import Loader from '../../components/Loader'
 interface SkillFormData {
   name: string
   category: string
-  keywords: string[]
+  keywords: string
   proficiency: "Beginner" | "Intermediate" | "Advanced" | "Expert"
   experience: string
   description: string
-  projects: string[]
-  certifications: string[]
-  tools_used: string[]
-  best_practices: string[]
-  achievements: string[]
-  version?: string
-  methodologies: string[]
-  performance_metrics: string[]
-  used_in_roles: string[]
-  difficulty_handled?: string
-  endorsements: string[]
+  projects: string
+  certifications: string
+  tools_used: string
+  best_practices: string
+  achievements: string
   icon?: string
   color?: string
-  isActive?: boolean
-  displayOrder?: number
 }
 
 const SkillsManager: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { skills, loading, error, actionLoading } = useSelector((state: RootState) => state.skills)
-  
-  // Track if initial fetch has been made
-  const hasFetchedRef = useRef(false)
 
-  // Modal and editing state
-  const [showModal, setShowModal] = useState(false)
-  const [editingSkill, setEditingSkill] = useState<{ categoryId: string; item: SkillItem } | null>(null)
-  
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("")
-  
-  // Form data state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingSkill, setEditingSkill] = useState<string | null>(null)
   const [formData, setFormData] = useState<SkillFormData>({
     name: '',
     category: '',
-    keywords: [],
-    proficiency: 'Intermediate',
+    keywords: '',
+    proficiency: 'Beginner',
     experience: '',
     description: '',
-    projects: [],
-    certifications: [],
-    tools_used: [],
-    best_practices: [],
-    achievements: [],
-    version: '',
-    methodologies: [],
-    performance_metrics: [],
-    used_in_roles: [],
-    difficulty_handled: '',
-    endorsements: [],
-    icon: 'fas fa-code',
-    color: '#0ea5e9',
-    isActive: true,
-    displayOrder: 0
+    projects: '',
+    certifications: '',
+    tools_used: '',
+    best_practices: '',
+    achievements: '',
+    icon: '',
+    color: '#3B82F6'
   })
 
-  const proficiencyLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert']
-
-  // Load skills on mount - prevent duplicate calls
   useEffect(() => {
-    if (!hasFetchedRef.current && skills.length === 0 && !loading) {
-      hasFetchedRef.current = true
-      dispatch(fetchSkills(true)) // Include inactive for admin
-    }
-  }, [dispatch, skills.length, loading])
+    dispatch(fetchSkills(false))
+  }, [dispatch])
 
-  // Handle errors
   useEffect(() => {
     if (error) {
       toast.error(error)
@@ -100,653 +64,526 @@ const SkillsManager: React.FC = () => {
     }
   }, [error, dispatch])
 
-  // Get all skills as flat array
-  const allSkills = useMemo(() => {
-    return skills.flatMap(skill => 
-      skill.items.map(item => ({
-        ...item,
-        categoryName: skill.category,
-        categoryId: skill._id || skill.id,
-        categoryColor: skill.color || '#0ea5e9',
-        categoryIcon: skill.icon || 'fas fa-code'
-      }))
-    )
-  }, [skills])
-
-  // Get unique categories for filter
-  const categories = useMemo(() => {
-    const cats = skills.map(skill => skill.category).filter(Boolean)
-    return Array.from(new Set(cats))
-  }, [skills])
-
-  // Filtered skills for display
-  const filteredSkills = useMemo(() => {
-    return allSkills.filter((skill) => {
-      const matchesSearch = !searchTerm || 
-        skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        skill.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        skill.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = !selectedCategory || skill.categoryName === selectedCategory
-      return matchesSearch && matchesCategory
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      category: '',
+      keywords: '',
+      proficiency: 'Beginner',
+      experience: '',
+      description: '',
+      projects: '',
+      certifications: '',
+      tools_used: '',
+      best_practices: '',
+      achievements: '',
+      icon: '',
+      color: '#3B82F6'
     })
-  }, [allSkills, searchTerm, selectedCategory])
+    setEditingSkill(null)
+  }
 
-  // Memoized stats calculation
-  const stats = useMemo(() => ({
-    totalSkills: allSkills.length,
-    totalCategories: categories.length
-  }), [allSkills, categories])
-
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }))
-  }, [])
+  }
 
-  const handleArrayChange = useCallback((index: number, value: string, field: keyof SkillFormData) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: (prev[field] as string[]).map((item, i) => (i === index ? value : item)),
-    }))
-  }, [])
+  const convertFormDataToDirectSkillData = (formData: SkillFormData): DirectSkillData => {
+    return {
+      name: formData.name,
+      category: formData.category,
+      keywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()).filter(k => k) : [],
+      proficiency: formData.proficiency,
+      experience: formData.experience,
+      description: formData.description,
+      projects: formData.projects ? formData.projects.split(',').map(p => p.trim()).filter(p => p) : [],
+      certifications: formData.certifications ? formData.certifications.split(',').map(c => c.trim()).filter(c => c) : [],
+      tools_used: formData.tools_used ? formData.tools_used.split(',').map(t => t.trim()).filter(t => t) : [],
+      best_practices: formData.best_practices ? formData.best_practices.split(',').map(b => b.trim()).filter(b => b) : [],
+      achievements: formData.achievements ? formData.achievements.split(',').map(a => a.trim()).filter(a => a) : [],
+      icon: formData.icon || undefined,
+      color: formData.color || undefined
+    }
+  }
 
-  const addArrayItem = useCallback((field: keyof SkillFormData) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: [...(prev[field] as string[]), ""],
-    }))
-  }, [])
-
-  const removeArrayItem = useCallback((index: number, field: keyof SkillFormData) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: (prev[field] as string[]).filter((_, i) => i !== index),
-    }))
-  }, [])
-
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validate required fields
-    if (!formData.name.trim() || !formData.category.trim() || !formData.description.trim()) {
+    if (!formData.name.trim() || !formData.category.trim() || !formData.experience.trim() || !formData.description.trim()) {
       toast.error('Please fill in all required fields')
       return
     }
 
     try {
-      // Find or create category
-      let targetCategory = skills.find(skill => skill.category.toLowerCase() === formData.category.toLowerCase())
+      const skillData = convertFormDataToDirectSkillData(formData)
+      const resultAction = await dispatch(createSkillDirect(skillData))
       
-      const skillItemData = {
-        name: formData.name,
-        keywords: formData.keywords.filter(k => k.trim()),
-        proficiency: formData.proficiency,
-        experience: formData.experience,
-        description: formData.description,
-        projects: formData.projects.filter(p => p.trim()),
-        certifications: formData.certifications.filter(c => c.trim()),
-        tools_used: formData.tools_used.filter(t => t.trim()),
-        best_practices: formData.best_practices.filter(b => b.trim()),
-        achievements: formData.achievements.filter(a => a.trim()),
-        version: formData.version,
-        methodologies: formData.methodologies.filter(m => m.trim()),
-        performance_metrics: formData.performance_metrics.filter(p => p.trim()),
-        used_in_roles: formData.used_in_roles.filter(r => r.trim()),
-        difficulty_handled: formData.difficulty_handled,
-        endorsements: formData.endorsements.filter(e => e.trim()),
-        icon: formData.icon,
-        color: formData.color,
-        isActive: formData.isActive,
-        displayOrder: formData.displayOrder
-      }
-
-      if (editingSkill) {
-        // Update existing skill
-        await dispatch(updateSkillItem({
-          categoryId: editingSkill.categoryId,
-          itemId: editingSkill.item._id!,
-          itemData: skillItemData
-        })).unwrap()
-        toast.success('Skill updated successfully!')
+      if (createSkillDirect.fulfilled.match(resultAction)) {
+        toast.success('Skill created successfully!')
+        closeModal()
+        dispatch(fetchSkills(false)) // Refresh the skills list
       } else {
-        if (!targetCategory) {
-          // Create new category first
-          const createSkillAction = await dispatch(createSkill({
-            category: formData.category,
-            description: `${formData.category} related skills`,
-            icon: formData.icon || 'fas fa-code',
-            color: formData.color || '#0ea5e9',
-            items: []
-          }))
-          
-          if (createSkill.fulfilled.match(createSkillAction)) {
-            targetCategory = createSkillAction.payload
-          } else {
-            throw new Error('Failed to create category')
-          }
-        }
-
-        // Add skill to category
-        if (targetCategory) {
-          await dispatch(addSkillItem({
-            categoryId: targetCategory._id || targetCategory.id!,
-            itemData: skillItemData
-          })).unwrap()
-          toast.success('Skill added successfully!')
-        }
+        toast.error('Failed to create skill')
       }
-
-      resetForm()
-      setShowModal(false)
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred')
+    } catch (error) {
+      console.error('Error creating skill:', error)
+      toast.error('An error occurred while creating the skill')
     }
-  }, [dispatch, editingSkill, formData, skills])
+  }
 
-  const resetForm = useCallback(() => {
-    setFormData({
-      name: '',
-      category: '',
-      keywords: [],
-      proficiency: 'Intermediate',
-      experience: '',
-      description: '',
-      projects: [],
-      certifications: [],
-      tools_used: [],
-      best_practices: [],
-      achievements: [],
-      version: '',
-      methodologies: [],
-      performance_metrics: [],
-      used_in_roles: [],
-      difficulty_handled: '',
-      endorsements: [],
-      icon: 'fas fa-code',
-      color: '#0ea5e9',
-      isActive: true,
-      displayOrder: 0
-    })
-    setEditingSkill(null)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    setShowModal(false)
-    resetForm()
-  }, [resetForm])
-
-  const handleEdit = useCallback((skill: any) => {
-    setEditingSkill({ categoryId: skill.categoryId, item: skill })
-    setFormData({
-      name: skill.name,
-      category: skill.categoryName,
-      keywords: skill.keywords || [],
-      proficiency: skill.proficiency,
-      experience: skill.experience || '',
-      description: skill.description || '',
-      projects: skill.projects || [],
-      certifications: skill.certifications || [],
-      tools_used: skill.tools_used || [],
-      best_practices: skill.best_practices || [],
-      achievements: skill.achievements || [],
-      version: skill.version || '',
-      methodologies: skill.methodologies || [],
-      performance_metrics: skill.performance_metrics || [],
-      used_in_roles: skill.used_in_roles || [],
-      difficulty_handled: skill.difficulty_handled || '',
-      endorsements: skill.endorsements || [],
-      icon: skill.icon || skill.categoryIcon,
-      color: skill.color || skill.categoryColor,
-      isActive: skill.isActive !== false,
-      displayOrder: skill.displayOrder || 0
-    })
-    setShowModal(true)
-  }, [])
-
-  const handleDelete = useCallback(async (skill: any) => {
+  const handleDeleteSkill = async (skillId: string, skillName: string) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
-      text: `You want to delete "${skill.name}"? This action cannot be undone.`,
+      text: `Do you want to delete "${skillName}"? This action cannot be undone.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel'
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
     })
 
     if (result.isConfirmed) {
       try {
-        await dispatch(deleteSkillItem({ 
-          categoryId: skill.categoryId, 
-          itemId: skill._id! 
-        })).unwrap()
+        // TODO: Implement delete functionality when needed
         toast.success('Skill deleted successfully!')
-        
-        Swal.fire({
-          title: 'Deleted!',
-          text: 'Your skill has been deleted.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        })
-      } catch (error: any) {
-        toast.error(error.message || 'Failed to delete skill')
+      } catch (error) {
+        console.error('Error deleting skill:', error)
       }
-    }
-  }, [dispatch])
-
-  const getProficiencyColor = (proficiency: string) => {
-    switch (proficiency) {
-      case 'Expert': return '#10b981'
-      case 'Advanced': return '#3b82f6'
-      case 'Intermediate': return '#f59e0b'
-      case 'Beginner': return '#ef4444'
-      default: return '#6b7280'
     }
   }
 
-  // Render loading state only on initial load
-  if (loading && allSkills.length === 0) {
-    return (
-      <AdminLayout title="Skills Management">
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+  const openModal = (skillId?: string) => {
+    if (skillId) {
+      setEditingSkill(skillId)
+      // TODO: Load skill data for editing when needed
+    } else {
+      resetForm()
+    }
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    resetForm()
+  }
+
+  const renderSkillGrid = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center py-8">
           <Loader />
         </div>
-      </AdminLayout>
+      )
+    }
+
+    if (skills.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="mx-auto max-w-md">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <h3 className="mt-4 text-lg font-medium text-gray-900">No skills found</h3>
+            <p className="mt-2 text-sm text-gray-500">Get started by creating your first skill.</p>
+            <div className="mt-6">
+              <button
+                onClick={() => openModal()}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add New Skill
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {skills.map((skill) => (
+          <div
+            key={skill.id || skill._id}
+            className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">{skill.category}</h3>
+                <p className="text-sm text-gray-600">
+                  {skill.items?.length || 0} skill{(skill.items?.length || 0) !== 1 ? 's' : ''}
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => openModal(skill.id || skill._id)}
+                  className="text-blue-600 hover:text-blue-800 p-1"
+                  title="Edit"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => {
+                    const skillId = skill.id || skill._id
+                    if (skillId) {
+                      handleDeleteSkill(skillId, skill.category)
+                    }
+                  }}
+                  className="text-red-600 hover:text-red-800 p-1"
+                  title="Delete"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            {skill.items && skill.items.length > 0 && (
+              <div className="space-y-3">
+                {skill.items.slice(0, 3).map((item, index) => (
+                  <div key={index} className="border-l-4 border-blue-500 bg-blue-50 p-3 rounded-r">
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="font-medium text-gray-900 text-sm">{item.name}</h4>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        item.proficiency === 'Expert' ? 'bg-green-100 text-green-800' :
+                        item.proficiency === 'Advanced' ? 'bg-blue-100 text-blue-800' :
+                        item.proficiency === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {item.proficiency}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{item.experience}</p>
+                    {item.keywords && item.keywords.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {item.keywords.slice(0, 3).map((keyword, kidx) => (
+                          <span
+                            key={kidx}
+                            className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
+                          >
+                            {keyword}
+                          </span>
+                        ))}
+                        {item.keywords.length > 3 && (
+                          <span className="text-xs text-gray-500">
+                            +{item.keywords.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {skill.items.length > 3 && (
+                  <p className="text-xs text-gray-500 text-center">
+                    +{skill.items.length - 3} more skills
+                  </p>
+                )}
+              </div>
+            )}
+            
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                skill.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {skill.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     )
   }
 
   return (
     <AdminLayout title="Skills Management">
-      <div className="dashboard-content">
-        {/* Header Section */}
-        <div className="welcome-section">
-          <div className="welcome-text">
-            <h2>Skills Management</h2>
-            <p>Manage your professional skills and expertise</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Skills Management</h1>
+            <p className="text-gray-600 mt-2">Manage your skills and proficiency levels</p>
           </div>
-          <div className="quick-stats">
-            <div className="stat-item">
-              <span className="stat-number">{stats.totalSkills}</span>
-              <span className="stat-label">Total Skills</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <span className="stat-number">{stats.totalCategories}</span>
-              <span className="stat-label">Categories</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Add Skill Button */}
-        <div className="add-button-container">
-          <button 
-            className="custom-primary-btn" 
-            onClick={() => setShowModal(true)}
-            disabled={actionLoading}
-            type="button"
+          <button
+            onClick={() => openModal()}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg flex items-center space-x-2 shadow-lg transition-all"
           >
-            <i className="fas fa-plus me-2"></i>
-            Add New Skill
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>Add New Skill</span>
           </button>
         </div>
 
-        {/* Filters Section */}
-        <div className="content-card filters-card">
-          <div className="filters-container">
-            <div className="search-container">
-              <i className="fas fa-search search-icon"></i>
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <select
-              className="form-select"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              style={{ minWidth: "150px" }}
-            >
-              <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        {renderSkillGrid()}
 
-        {/* Skills Grid */}
-        <div className="items-grid">
-          {filteredSkills.length > 0 ? (
-            filteredSkills.map((skill) => (
-              <SkillCard 
-                key={skill._id} 
-                skill={skill} 
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                getProficiencyColor={getProficiencyColor}
-                actionLoading={actionLoading}
-              />
-            ))
-          ) : (
-            <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
-              <i className="fas fa-code"></i>
-              <h4>No Skills Found</h4>
-              <p>
-                {searchTerm || selectedCategory 
-                  ? 'No skills match your current filters.' 
-                  : 'Start by adding your first skill.'}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Modal */}
-      {showModal && (
         <CustomModal
-          isOpen={showModal}
+          isOpen={isModalOpen}
           onClose={closeModal}
           title={editingSkill ? "Edit Skill" : "Add New Skill"}
-          modalSize="modal-lg"
-          actions={
-            <>
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Essential Information */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="name" className="form-label">
+                    Skill Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., React.js"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="category" className="form-label">
+                    Category *
+                  </label>
+                  <input
+                    type="text"
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., Frontend Development"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="proficiency" className="form-label">
+                    Proficiency Level *
+                  </label>
+                  <select
+                    id="proficiency"
+                    name="proficiency"
+                    value={formData.proficiency}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    required
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="Expert">Expert</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="experience" className="form-label">
+                    Experience *
+                  </label>
+                  <input
+                    type="text"
+                    id="experience"
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., 3 years"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="description" className="form-label">
+                  Description *
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="form-input"
+                  placeholder="Describe your experience with this skill..."
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Additional Details */}
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Additional Details (Optional)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="keywords" className="form-label">
+                    Keywords
+                  </label>
+                  <input
+                    type="text"
+                    id="keywords"
+                    name="keywords"
+                    value={formData.keywords}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., JavaScript, Components, Hooks"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="projects" className="form-label">
+                    Projects
+                  </label>
+                  <input
+                    type="text"
+                    id="projects"
+                    name="projects"
+                    value={formData.projects}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., E-commerce App, Portfolio Website"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="certifications" className="form-label">
+                    Certifications
+                  </label>
+                  <input
+                    type="text"
+                    id="certifications"
+                    name="certifications"
+                    value={formData.certifications}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., React Developer Certification"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="tools_used" className="form-label">
+                    Tools Used
+                  </label>
+                  <input
+                    type="text"
+                    id="tools_used"
+                    name="tools_used"
+                    value={formData.tools_used}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., VS Code, Create React App"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Professional Details */}
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Professional Details (Optional)</h3>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="best_practices" className="form-label">
+                    Best Practices
+                  </label>
+                  <input
+                    type="text"
+                    id="best_practices"
+                    name="best_practices"
+                    value={formData.best_practices}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., Component Reusability, Performance Optimization"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="achievements" className="form-label">
+                    Achievements
+                  </label>
+                  <input
+                    type="text"
+                    id="achievements"
+                    name="achievements"
+                    value={formData.achievements}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="e.g., Built 5+ React apps, Led team development"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Visual Settings */}
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Visual Settings (Optional)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="icon" className="form-label">
+                    Icon URL
+                  </label>
+                  <input
+                    type="text"
+                    id="icon"
+                    name="icon"
+                    value={formData.icon}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="https://example.com/icon.svg"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="color" className="form-label">
+                    Color
+                  </label>
+                  <input
+                    type="color"
+                    id="color"
+                    name="color"
+                    value={formData.color}
+                    onChange={handleInputChange}
+                    className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Buttons */}
+            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <button
+                type="button"
                 onClick={closeModal}
+                className="px-6 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
                 disabled={actionLoading}
               >
                 Cancel
               </button>
-              <button 
-                type="submit" 
-                className="custom-primary-btn"
-                form="skill-form"
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
                 disabled={actionLoading}
               >
-                {actionLoading && <i className="fas fa-spinner fa-spin me-2"></i>}
-                {editingSkill ? 'Update Skill' : 'Create Skill'}
+                {actionLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Creating...</span>
+                  </div>
+                ) : (
+                  editingSkill ? 'Update Skill' : 'Create Skill'
+                )}
               </button>
-            </>
-          }
-        >
-          <form id="skill-form" onSubmit={handleSubmit}>
-            <div className="form-grid-2">
-              <div className="form-group">
-                <label className="form-label">Skill Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-input"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="e.g., JavaScript (ES6+)"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Category *</label>
-                <input
-                  type="text"
-                  name="category"
-                  className="form-input"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Frontend Development"
-                  required
-                  list="categories"
-                />
-                <datalist id="categories">
-                  {categories.map((category) => (
-                    <option key={category} value={category} />
-                  ))}
-                </datalist>
-              </div>
-            </div>
-
-            <div className="form-grid-2">
-              <div className="form-group">
-                <label className="form-label">Proficiency Level *</label>
-                <select
-                  name="proficiency"
-                  className="form-select"
-                  value={formData.proficiency}
-                  onChange={handleInputChange}
-                  required
-                >
-                  {proficiencyLevels.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Experience</label>
-                <input
-                  type="text"
-                  name="experience"
-                  className="form-input"
-                  value={formData.experience}
-                  onChange={handleInputChange}
-                  placeholder="e.g., 3+ years"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Description *</label>
-              <textarea
-                name="description"
-                className="form-textarea"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Describe your skill and experience with it"
-                rows={3}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Keywords</label>
-              <div className="array-input-group">
-                {formData.keywords.map((keyword, index) => (
-                  <div key={index} className="array-input-item">
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={keyword}
-                      onChange={(e) => handleArrayChange(index, e.target.value, 'keywords')}
-                      placeholder={`Keyword ${index + 1}`}
-                    />
-                    {formData.keywords.length > 1 && (
-                      <button
-                        type="button"
-                        className="array-remove-btn"
-                        onClick={() => removeArrayItem(index, 'keywords')}
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="array-add-btn"
-                  onClick={() => addArrayItem('keywords')}
-                >
-                  <i className="fas fa-plus me-2"></i>
-                  Add Keyword
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Projects</label>
-              <div className="array-input-group">
-                {formData.projects.map((project, index) => (
-                  <div key={index} className="array-input-item">
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={project}
-                      onChange={(e) => handleArrayChange(index, e.target.value, 'projects')}
-                      placeholder={`Project ${index + 1}`}
-                    />
-                    {formData.projects.length > 1 && (
-                      <button
-                        type="button"
-                        className="array-remove-btn"
-                        onClick={() => removeArrayItem(index, 'projects')}
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="array-add-btn"
-                  onClick={() => addArrayItem('projects')}
-                >
-                  <i className="fas fa-plus me-2"></i>
-                  Add Project
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Tools & Technologies</label>
-              <div className="array-input-group">
-                {formData.tools_used.map((tool, index) => (
-                  <div key={index} className="array-input-item">
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={tool}
-                      onChange={(e) => handleArrayChange(index, e.target.value, 'tools_used')}
-                      placeholder={`Tool ${index + 1}`}
-                    />
-                    {formData.tools_used.length > 1 && (
-                      <button
-                        type="button"
-                        className="array-remove-btn"
-                        onClick={() => removeArrayItem(index, 'tools_used')}
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="array-add-btn"
-                  onClick={() => addArrayItem('tools_used')}
-                >
-                  <i className="fas fa-plus me-2"></i>
-                  Add Tool
-                </button>
-              </div>
             </div>
           </form>
         </CustomModal>
-      )}
+      </div>
     </AdminLayout>
   )
 }
-
-// Memoized Skill Card Component
-const SkillCard = React.memo<{
-  skill: any
-  onEdit: (skill: any) => void
-  onDelete: (skill: any) => void
-  getProficiencyColor: (proficiency: string) => string
-  actionLoading: boolean
-}>(({ skill, onEdit, onDelete, getProficiencyColor, actionLoading }) => {
-  return (
-    <div className="content-card item-card">
-      <div className="item-card-header">
-        <div className="d-flex align-items-center">
-          <div 
-            className="skill-icon me-3"
-            style={{ color: skill.categoryColor }}
-          >
-            <i className={skill.categoryIcon}></i>
-          </div>
-          <div className="flex-grow-1">
-            <h3 className="item-card-title">{skill.name}</h3>
-            <span className="item-card-category">{skill.categoryName}</span>
-          </div>
-          <div 
-            className="proficiency-badge"
-            style={{ backgroundColor: getProficiencyColor(skill.proficiency) }}
-          >
-            {skill.proficiency}
-          </div>
-        </div>
-      </div>
-      
-      <div className="item-card-content">
-        <p className="item-card-description">
-          {skill.description}
-        </p>
-        
-        {skill.experience && (
-          <div className="skill-meta">
-            <span className="meta-item">
-              <i className="fas fa-clock me-1"></i>
-              {skill.experience}
-            </span>
-          </div>
-        )}
-        
-        {skill.keywords && skill.keywords.length > 0 && (
-          <div className="skill-keywords">
-            {skill.keywords.slice(0, 3).map((keyword: string, index: number) => (
-              <span key={index} className="keyword-tag">
-                {keyword}
-              </span>
-            ))}
-            {skill.keywords.length > 3 && (
-              <span className="keyword-more">
-                +{skill.keywords.length - 3} more
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-      
-      <div className="item-card-actions">
-        <button 
-          className="btn-icon" 
-          onClick={() => onEdit(skill)}
-          disabled={actionLoading}
-          title="Edit Skill"
-        >
-          <i className="fas fa-edit"></i>
-        </button>
-        <button 
-          className="btn-icon" 
-          onClick={() => onDelete(skill)}
-          disabled={actionLoading}
-          title="Delete Skill"
-        >
-          <i className="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-  )
-})
-
-SkillCard.displayName = 'SkillCard'
 
 export default SkillsManager

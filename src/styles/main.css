@@ -1875,3 +1875,612 @@ button{
 .animate-stagger {
   animation-delay: calc(var(--stagger-delay, 0) * 0.1s);
 }
+
+/* ==========================================================================
+   CUSTOM MODAL STYLES
+   ========================================================================== */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 15, 35, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.custom-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: var(--shadow-intense);
+  animation: slideInUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.custom-modal.modal-sm { max-width: 400px; width: 90%; }
+.custom-modal.modal-md { max-width: 600px; width: 90%; }
+.custom-modal.modal-lg { max-width: 800px; width: 90%; }
+.custom-modal.modal-xl { max-width: 1200px; width: 95%; }
+
+.custom-modal h5 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+  position: relative;
+}
+
+.custom-modal h5::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--gradient-primary);
+  border-radius: 2px;
+}
+
+/* Custom scrollbar for modal */
+.custom-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-modal::-webkit-scrollbar-track {
+  background: var(--background-light);
+  border-radius: 3px;
+}
+
+.custom-modal::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+.custom-modal::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* ==========================================================================
+   FORM STYLES FOR CUSTOM MODAL
+   ========================================================================== */
+
+/* Form Groups */
+.custom-modal .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.custom-modal .form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Form Labels */
+.custom-modal .form-group label,
+.custom-modal label {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.custom-modal .form-group label.required::after {
+  content: ' *';
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+/* Input Styles */
+.custom-modal input[type="text"],
+.custom-modal input[type="email"],
+.custom-modal input[type="password"],
+.custom-modal input[type="number"],
+.custom-modal input[type="url"],
+.custom-modal input[type="color"],
+.custom-modal textarea,
+.custom-modal select,
+.custom-modal .form-control,
+.custom-modal .form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--background-light);
+  border: 2px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  outline: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.custom-modal input[type="text"]:focus,
+.custom-modal input[type="email"]:focus,
+.custom-modal input[type="password"]:focus,
+.custom-modal input[type="number"]:focus,
+.custom-modal input[type="url"]:focus,
+.custom-modal textarea:focus,
+.custom-modal select:focus,
+.custom-modal .form-control:focus,
+.custom-modal .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(165, 59, 76, 0.1);
+  background: var(--card-bg);
+  transform: translateY(-2px);
+}
+
+.custom-modal input[type="text"]:hover,
+.custom-modal input[type="email"]:hover,
+.custom-modal input[type="password"]:hover,
+.custom-modal input[type="number"]:hover,
+.custom-modal input[type="url"]:hover,
+.custom-modal textarea:hover,
+.custom-modal select:hover,
+.custom-modal .form-control:hover,
+.custom-modal .form-select:hover {
+  border-color: var(--primary-color);
+  background: var(--card-bg);
+}
+
+/* Placeholder Styles */
+.custom-modal input::placeholder,
+.custom-modal textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Textarea Specific */
+.custom-modal textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Select Dropdown */
+.custom-modal select option {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 0.5rem;
+}
+
+/* Color Input */
+.custom-modal input[type="color"] {
+  width: 60px;
+  height: 40px;
+  padding: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.custom-modal input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.3rem;
+}
+
+/* Form Grid Layout */
+.custom-modal .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.custom-modal .form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.custom-modal .form-row .form-group {
+  margin-bottom: 0;
+}
+
+/* Button Styles in Modal */
+.custom-modal .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-modal .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.custom-modal .btn:hover::before {
+  left: 100%;
+}
+
+.custom-modal .btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.custom-modal .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(165, 59, 76, 0.3);
+}
+
+.custom-modal .btn-secondary {
+  background: var(--background-light);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+}
+
+.custom-modal .btn-secondary:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.custom-modal .btn-danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.custom-modal .btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* Modal Actions */
+.custom-modal .modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2rem;
+}
+
+/* Form Validation Styles */
+.custom-modal .form-group.error input,
+.custom-modal .form-group.error textarea,
+.custom-modal .form-group.error select {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.custom-modal .error-message {
+  color: var(--danger-color);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.custom-modal .error-message i {
+  font-size: 0.7rem;
+}
+
+/* Success State */
+.custom-modal .form-group.success input,
+.custom-modal .form-group.success textarea,
+.custom-modal .form-group.success select {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+/* Loading State */
+.custom-modal .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.custom-modal .btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.custom-modal .btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ==========================================================================
+   PROFESSIONAL SKILLS CARD GRID
+   ========================================================================== */
+
+/* Skills Grid Container */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+/* Individual Skill Card */
+.skill-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skill-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.skill-card:hover::before {
+  transform: scaleX(1);
+}
+
+.skill-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
+}
+
+/* Skill Card Header */
+.skill-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.skill-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-light);
+  border-radius: 0.75rem;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  transition: var(--transition-fast);
+}
+
+.skill-card:hover .skill-icon {
+  background: var(--primary-color);
+  color: white;
+  transform: scale(1.1) rotate(5deg);
+}
+
+.skill-title h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.skill-category {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+/* Proficiency Section */
+.skill-proficiency {
+  margin-bottom: 1rem;
+}
+
+.proficiency-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.proficiency-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.experience-label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  background: var(--background-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+}
+
+.proficiency-bar {
+  height: 6px;
+  background: var(--background-light);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.proficiency-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 3px;
+  position: relative;
+  transition: width 0.8s ease-out;
+}
+
+.proficiency-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Skill Description */
+.skill-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+/* Keywords */
+.skill-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.keyword-tag {
+  background: var(--background-light);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-color);
+  transition: var(--transition-fast);
+}
+
+.keyword-tag:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Skill Stats */
+.skill-stats {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.stat-item i {
+  color: var(--primary-color);
+}
+
+/* Skill Actions */
+.skill-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-skill-details {
+  background: var(--background-light);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-skill-details:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .custom-modal {
+    margin: 1rem;
+    padding: 1.5rem;
+    max-height: 95vh;
+  }
+
+  .custom-modal .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .custom-modal .modal-actions {
+    flex-direction: column;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .skill-header {
+    gap: 0.75rem;
+  }
+
+  .skill-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-modal {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .skill-card {
+    padding: 1rem;
+  }
+
+  .skill-keywords .keyword-tag {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
