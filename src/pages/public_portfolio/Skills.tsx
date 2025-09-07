@@ -126,43 +126,6 @@ const Skills: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Skills Section */}
-      {featuredSkills.length > 0 && (
-        <section className="section-padding animate-on-scroll" style={{ background: "var(--secondary-bg)" }}>
-          <div className="container">
-            <h2 className="section-title">Featured Skills</h2>
-            <p className="section-subtitle text-center mb-5">
-              My most proficient and frequently used technologies
-            </p>
-            <div className="featured-skills-grid">
-              {featuredSkills.map((skill, index) => (
-                <div key={skill._id || skill.id} className="featured-skill-card" style={{ '--delay': index * 0.1 } as React.CSSProperties}>
-                  <Link to={`/skills/${skill._id || skill.id}`} className="skill-link">
-                    <div className="skill-card-header">
-                      <div className="skill-icon-large" style={{ backgroundColor: skill.color + '20', borderColor: skill.color }}>
-                        <i className={skill.icon || 'fas fa-code'} style={{ color: skill.color }}></i>
-                      </div>
-                      <h4>{skill.category}</h4>
-                      <p>{skill.description}</p>
-                    </div>
-                    <div className="skill-card-stats">
-                      <div className="stat">
-                        <span className="stat-number">{skill.items.filter(item => item.isActive !== false).length}</span>
-                        <span className="stat-label">Skills</span>
-                      </div>
-                      <div className="stat">
-                        <span className="stat-number">{skill.items.filter(item => item.proficiency === 'Expert').length}</span>
-                        <span className="stat-label">Expert</span>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* All Skills Section */}
       <section className="section-padding animate-on-scroll" id="all-skills">
         <div className="container">

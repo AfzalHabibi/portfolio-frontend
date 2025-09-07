@@ -251,23 +251,23 @@ const Home: React.FC = () => {
       {/* Footer */}
       <footer className="footer">
         <div className="container">
-          <div className="social-links">
-            <a href={settings.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="social-link">
+          <div className="social-links d-flex justify-content-center mb-4 gap-1">
+            <a href={settings.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="theme-toggle">
               <i className="fab fa-linkedin-in"></i>
             </a>
-            <a href={settings.socialLinks.github} target="_blank" rel="noopener noreferrer" className="social-link">
+            <a href={settings.socialLinks.github} target="_blank" rel="noopener noreferrer" className="theme-toggle">
               <i className="fab fa-github"></i>
             </a>
-            <a href={settings.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="social-link">
+            <a href={settings.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="theme-toggle">
               <i className="fab fa-twitter"></i>
             </a>
-            <a href={settings.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="social-link">
+            <a href={settings.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="theme-toggle">
               <i className="fab fa-instagram"></i>
             </a>
-            <a href={settings.socialLinks.behance} target="_blank" rel="noopener noreferrer" className="social-link">
+            <a href={settings.socialLinks.behance} target="_blank" rel="noopener noreferrer" className="theme-toggle">
               <i className="fab fa-behance"></i>
             </a>
-            <a href={settings.socialLinks.dribbble} target="_blank" rel="noopener noreferrer" className="social-link">
+            <a href={settings.socialLinks.dribbble} target="_blank" rel="noopener noreferrer" className="theme-toggle">
               <i className="fab fa-dribbble"></i>
             </a>
           </div>
