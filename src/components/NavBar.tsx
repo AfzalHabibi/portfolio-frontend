@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { useSelector } from "react-redux"
 import type { RootState } from "../store/store"
+import ThemeToggle from "./ThemeToggle"
 
 const NavBar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -85,6 +86,9 @@ const NavBar: React.FC = () => {
                 <i className="fas fa-download me-2"></i>
                 Download CV
               </a>
+            </li>
+            <li className="nav-item">
+              <ThemeToggle />
             </li>
           </ul>
         </div>
