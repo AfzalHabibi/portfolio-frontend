@@ -121,7 +121,7 @@ const SkillDetail: React.FC = () => {
                 {/* Skill Category Header */}
                 <div className="skill-category-header">
                   <div 
-                    className="skill-icon-hero"
+                    className="skill-category-icon"
                     style={{ 
                       backgroundColor: selectedSkill.color + '20', 
                       borderColor: selectedSkill.color,
@@ -130,46 +130,36 @@ const SkillDetail: React.FC = () => {
                   >
                     <i className={selectedSkill.icon || 'fas fa-code'}></i>
                   </div>
-                  <h1 className="hero-title">
-                    <span className="text-gradient">{selectedSkill.category}</span>
+                  <h1 className="skill-category-title">
+                    {selectedSkill.category}
                   </h1>
-                  <p className="hero-description">
+                  <p className="skill-category-description">
                     {selectedSkill.description || `Comprehensive overview of my ${selectedSkill.category} skills and expertise`}
                   </p>
                 </div>
 
                 {/* Quick Stats */}
                 <div className="skill-quick-stats">
-                  <div className="row">
-                    <div className="col-6 col-md-3">
-                      <div className="quick-stat">
-                        <div className="stat-number">{activeItems.length}</div>
-                        <div className="stat-label">Skills</div>
-                      </div>
+                  <div className="quick-stat">
+                    <div className="quick-stat-number">{activeItems.length}</div>
+                    <div className="quick-stat-label">Skills</div>
+                  </div>
+                  <div className="quick-stat">
+                    <div className="quick-stat-number">{activeItems.filter(item => item.proficiency === 'Expert').length}</div>
+                    <div className="quick-stat-label">Expert</div>
+                  </div>
+                  <div className="quick-stat">
+                    <div className="quick-stat-number">{activeItems.filter(item => item.proficiency === 'Advanced').length}</div>
+                    <div className="quick-stat-label">Advanced</div>
+                  </div>
+                  <div className="quick-stat">
+                    <div className="quick-stat-number">
+                      {Math.round(activeItems.reduce((acc, item) => {
+                        const years = parseFloat(item.experience.replace(/[^\d.]/g, '')) || 0
+                        return acc + years
+                      }, 0) / Math.max(activeItems.length, 1))}+
                     </div>
-                    <div className="col-6 col-md-3">
-                      <div className="quick-stat">
-                        <div className="stat-number">{activeItems.filter(item => item.proficiency === 'Expert').length}</div>
-                        <div className="stat-label">Expert</div>
-                      </div>
-                    </div>
-                    <div className="col-6 col-md-3">
-                      <div className="quick-stat">
-                        <div className="stat-number">{activeItems.filter(item => item.proficiency === 'Advanced').length}</div>
-                        <div className="stat-label">Advanced</div>
-                      </div>
-                    </div>
-                    <div className="col-6 col-md-3">
-                      <div className="quick-stat">
-                        <div className="stat-number">
-                          {Math.round(activeItems.reduce((acc, item) => {
-                            const years = parseFloat(item.experience.replace(/[^\d.]/g, '')) || 0
-                            return acc + years
-                          }, 0) / Math.max(activeItems.length, 1))}+
-                        </div>
-                        <div className="stat-label">Avg Years</div>
-                      </div>
-                    </div>
+                    <div className="quick-stat-label">Avg Years</div>
                   </div>
                 </div>
               </div>
@@ -191,59 +181,43 @@ const SkillDetail: React.FC = () => {
                 onClick={() => setSelectedItem(item)}
               >
                 <div className="skill-item-header">
-                  <div className="skill-item-icon" style={{ color: selectedSkill.color }}>
+                  <div 
+                    className="skill-item-icon" 
+                    style={{ 
+                      backgroundColor: selectedSkill.color + '20', 
+                      borderColor: selectedSkill.color,
+                      color: selectedSkill.color 
+                    }}
+                  >
                     <i className={item.icon || selectedSkill.icon || 'fas fa-code'}></i>
                   </div>
-                  <div className="skill-item-title">
-                    <h5>{item.name}</h5>
-                    <span className="proficiency-badge" style={{ backgroundColor: getProficiencyColor(item.proficiency) }}>
-                      {item.proficiency}
-                    </span>
-                  </div>
+                  <h5 className="skill-item-name">{item.name}</h5>
                 </div>
 
                 <div className="skill-item-meta">
-                  <div className="experience-info">
-                    <i className="fas fa-clock"></i>
-                    <span>{item.experience}</span>
-                  </div>
-                  <div className="projects-count">
-                    <i className="fas fa-project-diagram"></i>
-                    <span>{item.projects?.length || 0} Projects</span>
-                  </div>
-                </div>
-
-                <div className="proficiency-bar">
-                  <div 
-                    className="proficiency-fill"
-                    style={{ 
-                      width: `${getProficiencyLevel(item.proficiency)}%`,
-                      backgroundColor: getProficiencyColor(item.proficiency)
-                    }}
-                  ></div>
+                  <span 
+                    className="proficiency-badge" 
+                    style={{ backgroundColor: getProficiencyColor(item.proficiency) }}
+                  >
+                    {item.proficiency}
+                  </span>
+                  <span className="experience-badge">
+                    <i className="fas fa-clock me-1"></i>
+                    {item.experience}
+                  </span>
                 </div>
 
                 <p className="skill-item-description">{item.description}</p>
 
                 <div className="skill-item-keywords">
                   {item.keywords.slice(0, 4).map((keyword, idx) => (
-                    <span key={idx} className="keyword-tag" style={{ backgroundColor: selectedSkill.color }}>
+                    <span key={idx} className="skill-keyword">
                       {keyword}
                     </span>
                   ))}
                   {item.keywords.length > 4 && (
-                    <span className="keyword-tag more">+{item.keywords.length - 4}</span>
+                    <span className="skill-keyword">+{item.keywords.length - 4}</span>
                   )}
-                </div>
-
-                <div className="skill-item-actions">
-                  <button 
-                    className="btn-view-details"
-                    style={{ borderColor: selectedSkill.color, color: selectedSkill.color }}
-                  >
-                    <i className="fas fa-eye me-2"></i>
-                    View Details
-                  </button>
                 </div>
               </div>
             ))}
@@ -266,13 +240,21 @@ const SkillDetail: React.FC = () => {
                   className="related-skill-card"
                   style={{ '--delay': index * 0.1 } as React.CSSProperties}
                 >
-                  <div className="related-skill-icon" style={{ backgroundColor: skill.color + '20', borderColor: skill.color }}>
-                    <i className={skill.icon || 'fas fa-code'} style={{ color: skill.color }}></i>
-                  </div>
-                  <h5>{skill.category}</h5>
-                  <p>{skill.items.filter(item => item.isActive !== false).length} Skills</p>
-                  <div className="view-arrow">
-                    <i className="fas fa-arrow-right" style={{ color: skill.color }}></i>
+                  <div className="related-skill-header">
+                    <div 
+                      className="related-skill-icon" 
+                      style={{ 
+                        backgroundColor: skill.color + '20', 
+                        borderColor: skill.color,
+                        color: skill.color 
+                      }}
+                    >
+                      <i className={skill.icon || 'fas fa-code'}></i>
+                    </div>
+                    <div>
+                      <h5 className="related-skill-name">{skill.category}</h5>
+                      <p className="related-skill-count">{skill.items.filter(item => item.isActive !== false).length} Skills</p>
+                    </div>
                   </div>
                 </Link>
               ))}

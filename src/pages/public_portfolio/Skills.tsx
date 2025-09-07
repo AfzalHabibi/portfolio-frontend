@@ -94,38 +94,6 @@ const Skills: React.FC = () => {
         </div>
       </section>
 
-      {/* Skills Overview Stats */}
-      <section className="stats-section animate-on-scroll" id="skills-overview">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-3 col-md-6 mb-4">
-              <div className="stat-item">
-                <div className="stat-number">{skills.length}</div>
-                <div className="stat-label">Skill Categories</div>
-              </div>
-            </div>
-            <div className="col-lg-3 col-md-6 mb-4">
-              <div className="stat-item">
-                <div className="stat-number">{totalSkillItems}</div>
-                <div className="stat-label">Total Skills</div>
-              </div>
-            </div>
-            <div className="col-lg-3 col-md-6 mb-4">
-              <div className="stat-item">
-                <div className="stat-number">{expertSkills}</div>
-                <div className="stat-label">Expert Level</div>
-              </div>
-            </div>
-            <div className="col-lg-3 col-md-6 mb-4">
-              <div className="stat-item">
-                <div className="stat-number">{averageExperience}+</div>
-                <div className="stat-label">Years Experience</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* All Skills Section */}
       <section className="section-padding animate-on-scroll" id="all-skills">
         <div className="container">

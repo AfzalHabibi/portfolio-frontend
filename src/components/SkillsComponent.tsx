@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { fetchSkills } from '../store/slices/skillSlice'
 import { RootState, AppDispatch } from '../store/store'
 import { Skill, SkillItem } from '../types'
@@ -16,14 +17,17 @@ interface SkillsComponentProps {
   showAllDetails?: boolean
   maxSkillsToShow?: number
   className?: string
+  showCategories?: boolean // New prop to show categories instead of individual skills
 }
 
 const SkillsComponent: React.FC<SkillsComponentProps> = ({ 
   showAllDetails = false, 
   maxSkillsToShow = 12,
-  className = ''
+  className = '',
+  showCategories = false
 }) => {
   const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
   const { skills, loading, error } = useSelector((state: RootState) => state.skills)
   
   // Track if initial fetch has been made
@@ -71,18 +75,6 @@ const SkillsComponent: React.FC<SkillsComponentProps> = ({
     return filtered.slice(0, maxSkillsToShow)
   }, [allSkills, activeCategory, maxSkillsToShow])
 
-  // Group skills by proficiency
-  const skillsByProficiency = useMemo(() => {
-    const grouped = filteredSkills.reduce((acc, skill) => {
-      const level = skill.proficiency
-      if (!acc[level]) acc[level] = []
-      acc[level].push(skill)
-      return acc
-    }, {} as Record<string, typeof filteredSkills>)
-
-    return grouped
-  }, [filteredSkills])
-
   const getProficiencyColor = (proficiency: string) => {
     switch (proficiency) {
       case 'Expert': return '#ef4444'
@@ -113,6 +105,29 @@ const SkillsComponent: React.FC<SkillsComponentProps> = ({
     setShowSkillModal(false)
   }
 
+  // Handle category navigation
+  const navigateToSkillCategory = (skillCategory: Skill) => {
+    navigate(`/skills/${skillCategory._id || skillCategory.id}`)
+  }
+
+  const handleSkillClick = (skill: SkillItemWithCategory) => {
+    if (showAllDetails) {
+      // Find the skill category this item belongs to
+      const skillCategory = skills.find(category => 
+        category.category === skill.categoryInfo.name
+      )
+      if (skillCategory) {
+        navigateToSkillCategory(skillCategory)
+      }
+    } else {
+      openSkillModal(skill)
+    }
+  }
+
+  const handleCategoryClick = (skillCategory: Skill) => {
+    navigateToSkillCategory(skillCategory)
+  }
+
   if (loading) {
     return (
       <div className="skills-loading">
@@ -140,112 +155,181 @@ const SkillsComponent: React.FC<SkillsComponentProps> = ({
 
   return (
     <div className={`skills-component ${className}`}>
-      {/* Category Filter */}
-      <div className="category-filter mb-4">
-        <div className="category-tabs">
-          {categories.map(category => (
-            <button
-              key={category}
-              className={`category-tab ${activeCategory === category ? 'active' : ''}`}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category === 'all' ? 'All Skills' : category}
-            </button>
-          ))}
+      {/* Category Filter - only show for individual skills view */}
+      {!showCategories && (
+        <div className="category-filter mb-4">
+          <div className="category-tabs">
+            {categories.map(category => (
+              <button
+                key={category}
+                className={`category-tab ${activeCategory === category ? 'active' : ''}`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category === 'all' ? 'All Skills' : category}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Skills Grid */}
       <div className="skills-grid">
-        {filteredSkills.map((skill, index) => (
-          <div 
-            key={skill._id || index} 
-            className="skill-card"
-            style={{ '--delay': index * 0.1 } as React.CSSProperties}
-            onClick={() => showAllDetails && openSkillModal(skill)}
-          >
-            <div className="skill-card-inner">
-              <div className="skill-header">
-                <div 
-                  className="skill-icon"
-                  style={{ color: skill.color || skill.categoryInfo.color }}
-                >
-                  <i className={skill.icon || skill.categoryInfo.icon}></i>
-                </div>
-                <div className="skill-title">
-                  <h6>{skill.name}</h6>
-                  <span className="skill-category">
-                    {skill.categoryInfo.name}
-                  </span>
-                </div>
-              </div>
-
-              <div className="skill-proficiency">
-                <div className="proficiency-info">
-                  <span className="proficiency-label">{skill.proficiency}</span>
-                  <span className="experience-label">{skill.experience}</span>
-                </div>
-                <div className="proficiency-bar">
+        {showCategories ? (
+          /* Render Skill Categories */
+          skills.map((skillCategory, index) => (
+            <div 
+              key={skillCategory._id || skillCategory.id || index} 
+              className="skill-card category-card"
+              style={{ '--delay': index * 0.1 } as React.CSSProperties}
+              onClick={() => handleCategoryClick(skillCategory)}
+            >
+              <div className="skill-card-inner">
+                <div className="skill-header">
                   <div 
-                    className="proficiency-fill"
+                    className="skill-icon"
                     style={{ 
-                      width: `${getProficiencyLevel(skill.proficiency)}%`,
-                      backgroundColor: getProficiencyColor(skill.proficiency)
+                      color: skillCategory.color || '#0ea5e9',
+                      backgroundColor: (skillCategory.color || '#0ea5e9') + '20',
+                      borderColor: skillCategory.color || '#0ea5e9'
                     }}
-                  ></div>
-                </div>
-              </div>
-
-              {!showAllDetails && (
-                <p className="skill-description">{skill.description}</p>
-              )}
-
-              {skill.keywords.length > 0 && (
-                <div className="skill-keywords">
-                  {skill.keywords.slice(0, 3).map((keyword, idx) => (
-                    <span key={idx} className="keyword-tag">
-                      {keyword}
+                  >
+                    <i className={skillCategory.icon || 'fas fa-code'}></i>
+                  </div>
+                  <div className="skill-title">
+                    <h6>{skillCategory.category}</h6>
+                    <span className="skill-category">
+                      {skillCategory.items.filter(item => item.isActive !== false).length} Skills
                     </span>
-                  ))}
-                  {skill.keywords.length > 3 && (
-                    <span className="keyword-tag more">
-                      +{skill.keywords.length - 3}
+                  </div>
+                </div>
+
+                <div className="skill-proficiency">
+                  <div className="proficiency-info">
+                    <span className="proficiency-label">
+                      {skillCategory.items.filter(item => item.proficiency === 'Expert' && item.isActive !== false).length} Expert
                     </span>
-                  )}
+                    <span className="experience-label">
+                      {Math.round(skillCategory.items.reduce((acc, item) => {
+                        if (item.isActive === false) return acc
+                        const years = parseFloat(item.experience.replace(/[^\d.]/g, '')) || 0
+                        return acc + years
+                      }, 0) / Math.max(skillCategory.items.filter(item => item.isActive !== false).length, 1))}+ years avg
+                    </span>
+                  </div>
                 </div>
-              )}
 
-              {showAllDetails && (
-                <div className="skill-stats">
-                  {skill.projects.length > 0 && (
-                    <div className="stat-item">
-                      <i className="fas fa-project-diagram"></i>
-                      <span>{skill.projects.length} project{skill.projects.length !== 1 ? 's' : ''}</span>
-                    </div>
-                  )}
-                  {skill.certifications.length > 0 && (
-                    <div className="stat-item">
-                      <i className="fas fa-certificate"></i>
-                      <span>{skill.certifications.length} cert{skill.certifications.length !== 1 ? 's' : ''}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+                <p className="skill-description">
+                  {skillCategory.description || `Explore my ${skillCategory.category} skills and expertise`}
+                </p>
 
-              {showAllDetails && (
                 <div className="skill-actions">
-                  <button className="btn-skill-details">
-                    <i className="fas fa-info-circle"></i>
-                    View Details
+                  <button 
+                    className="btn-skill-details"
+                    style={{ 
+                      borderColor: skillCategory.color || '#0ea5e9',
+                      color: skillCategory.color || '#0ea5e9'
+                    }}
+                  >
+                    <i className="fas fa-arrow-right me-2"></i>
+                    View Skills
                   </button>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          /* Render Individual Skills */
+          filteredSkills.map((skill, index) => (
+            <div 
+              key={skill._id || index} 
+              className="skill-card"
+              style={{ '--delay': index * 0.1 } as React.CSSProperties}
+              onClick={() => handleSkillClick(skill)}
+            >
+              <div className="skill-card-inner">
+                <div className="skill-header">
+                  <div 
+                    className="skill-icon"
+                    style={{ color: skill.color || skill.categoryInfo.color }}
+                  >
+                    <i className={skill.icon || skill.categoryInfo.icon}></i>
+                  </div>
+                  <div className="skill-title">
+                    <h6>{skill.name}</h6>
+                    <span className="skill-category">
+                      {skill.categoryInfo.name}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="skill-proficiency">
+                  <div className="proficiency-info">
+                    <span className="proficiency-label">{skill.proficiency}</span>
+                    <span className="experience-label">{skill.experience}</span>
+                  </div>
+                  <div className="proficiency-bar">
+                    <div 
+                      className="proficiency-fill"
+                      style={{ 
+                        width: `${getProficiencyLevel(skill.proficiency)}%`,
+                        backgroundColor: getProficiencyColor(skill.proficiency)
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                {!showAllDetails && (
+                  <p className="skill-description">{skill.description}</p>
+                )}
+
+                {skill.keywords.length > 0 && (
+                  <div className="skill-keywords">
+                    {skill.keywords.slice(0, 3).map((keyword, idx) => (
+                      <span key={idx} className="keyword-tag">
+                        {keyword}
+                      </span>
+                    ))}
+                    {skill.keywords.length > 3 && (
+                      <span className="keyword-tag more">
+                        +{skill.keywords.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {showAllDetails && (
+                  <div className="skill-stats">
+                    {skill.projects && skill.projects.length > 0 && (
+                      <div className="stat-item">
+                        <i className="fas fa-project-diagram"></i>
+                        <span>{skill.projects.length} project{skill.projects.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    )}
+                    {skill.certifications && skill.certifications.length > 0 && (
+                      <div className="stat-item">
+                        <i className="fas fa-certificate"></i>
+                        <span>{skill.certifications.length} cert{skill.certifications.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {showAllDetails && (
+                  <div className="skill-actions">
+                    <button className="btn-skill-details">
+                      <i className="fas fa-info-circle"></i>
+                      View Details
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
-      {filteredSkills.length === 0 && (
+      {/* No Skills Message */}
+      {!showCategories && filteredSkills.length === 0 && (
         <div className="no-skills">
           <div className="text-center py-5">
             <i className="fas fa-search fa-3x text-muted mb-3"></i>
@@ -259,40 +343,8 @@ const SkillsComponent: React.FC<SkillsComponentProps> = ({
         </div>
       )}
 
-      {/* Skills Summary */}
-      {!showAllDetails && filteredSkills.length > 0 && (
-        <div className="skills-summary mt-4">
-          <div className="row">
-            <div className="col-md-3 mb-3">
-              <div className="summary-card">
-                <h4>{allSkills.length}</h4>
-                <p>Total Skills</p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-3">
-              <div className="summary-card">
-                <h4>{allSkills.filter(s => s.proficiency === 'Expert').length}</h4>
-                <p>Expert Level</p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-3">
-              <div className="summary-card">
-                <h4>{skills.length}</h4>
-                <p>Categories</p>
-              </div>
-            </div>
-            <div className="col-md-3 mb-3">
-              <div className="summary-card">
-                <h4>{allSkills.reduce((acc, skill) => acc + skill.projects.length, 0)}</h4>
-                <p>Projects</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Skill Detail Modal */}
-      {showSkillModal && selectedSkill && (
+      {!showCategories && showSkillModal && selectedSkill && (
         <div className="skill-modal-overlay" onClick={closeSkillModal}>
           <div className="skill-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="skill-modal-close" onClick={closeSkillModal}>
@@ -300,127 +352,83 @@ const SkillsComponent: React.FC<SkillsComponentProps> = ({
             </button>
 
             <div className="modal-header">
-              <div className="d-flex align-items-center mb-3">
+              <div className="modal-skill-header">
                 <div 
-                  className="modal-skill-icon me-3"
-                  style={{ color: selectedSkill.color || selectedSkill.categoryInfo.color }}
+                  className="modal-skill-icon" 
+                  style={{ 
+                    backgroundColor: selectedSkill.categoryInfo.color + '20', 
+                    borderColor: selectedSkill.categoryInfo.color 
+                  }}
                 >
-                  <i className={selectedSkill.icon || selectedSkill.categoryInfo.icon}></i>
+                  <i 
+                    className={selectedSkill.icon || selectedSkill.categoryInfo.icon} 
+                    style={{ color: selectedSkill.categoryInfo.color }}
+                  ></i>
                 </div>
                 <div>
                   <h3>{selectedSkill.name}</h3>
-                  <span className="modal-category">{selectedSkill.categoryInfo.name}</span>
+                  <span className="modal-category" style={{ color: selectedSkill.categoryInfo.color }}>
+                    {selectedSkill.categoryInfo.name}
+                  </span>
                 </div>
               </div>
               
               <div className="proficiency-info-detailed">
-                <span 
-                  className="proficiency-badge-large"
-                  style={{ backgroundColor: getProficiencyColor(selectedSkill.proficiency) }}
-                >
+                <div className="proficiency-badge-large" style={{ backgroundColor: getProficiencyColor(selectedSkill.proficiency) }}>
                   {selectedSkill.proficiency}
-                </span>
-                <span className="experience-badge-large">
+                </div>
+                <div className="experience-badge-large">
+                  <i className="fas fa-clock me-2"></i>
                   {selectedSkill.experience}
-                </span>
+                </div>
                 {selectedSkill.version && (
-                  <span className="version-badge">
-                    {selectedSkill.version}
-                  </span>
+                  <div className="version-badge">
+                    <i className="fas fa-tag me-2"></i>
+                    v{selectedSkill.version}
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="modal-body">
-              <div className="row">
-                <div className="col-md-8">
-                  <h5>About this skill</h5>
-                  <p>{selectedSkill.description}</p>
+              <div className="skill-detail-content">
+                <div className="row">
+                  <div className="col-lg-8">
+                    {/* Description */}
+                    <div className="skill-section">
+                      <h5><i className="fas fa-info-circle me-2"></i>Description</h5>
+                      <p>{selectedSkill.description}</p>
+                    </div>
 
-                  {selectedSkill.keywords.length > 0 && (
-                    <div className="mb-4">
-                      <h6>Key Areas</h6>
+                    {/* Keywords */}
+                    <div className="skill-section">
+                      <h5><i className="fas fa-tags me-2"></i>Technologies & Keywords</h5>
                       <div className="keywords-grid">
                         {selectedSkill.keywords.map((keyword, idx) => (
-                          <span key={idx} className="keyword-tag-large">
+                          <span key={idx} className="keyword-tag-large" style={{ backgroundColor: selectedSkill.categoryInfo.color }}>
                             {keyword}
                           </span>
                         ))}
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  {selectedSkill.difficulty_handled && (
-                    <div className="mb-4">
-                      <h6>Complex Challenges Handled</h6>
-                      <p className="difficulty-text">{selectedSkill.difficulty_handled}</p>
-                    </div>
-                  )}
-
-                  {selectedSkill.best_practices.length > 0 && (
-                    <div className="mb-4">
-                      <h6>Best Practices</h6>
-                      <ul className="practices-list">
-                        {selectedSkill.best_practices.map((practice, idx) => (
-                          <li key={idx}>{practice}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div className="col-md-4">
-                  {selectedSkill.projects.length > 0 && (
-                    <div className="mb-4">
-                      <h6>Projects</h6>
-                      <ul className="projects-list">
-                        {selectedSkill.projects.map((project, idx) => (
-                          <li key={idx}>{project}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {selectedSkill.tools_used.length > 0 && (
-                    <div className="mb-4">
-                      <h6>Tools & Technologies</h6>
-                      <div className="tools-grid">
-                        {selectedSkill.tools_used.map((tool, idx) => (
-                          <span key={idx} className="tool-tag">
-                            {tool}
-                          </span>
-                        ))}
+                  <div className="col-lg-4">
+                    {/* Projects */}
+                    {selectedSkill.projects && selectedSkill.projects.length > 0 && (
+                      <div className="skill-section">
+                        <h6><i className="fas fa-project-diagram me-2"></i>Projects ({selectedSkill.projects.length})</h6>
+                        <ul className="projects-list">
+                          {selectedSkill.projects.slice(0, 5).map((project, idx) => (
+                            <li key={idx}>{project}</li>
+                          ))}
+                          {selectedSkill.projects.length > 5 && (
+                            <li className="more-projects">+{selectedSkill.projects.length - 5} more projects</li>
+                          )}
+                        </ul>
                       </div>
-                    </div>
-                  )}
-
-                  {selectedSkill.certifications.length > 0 && (
-                    <div className="mb-4">
-                      <h6>Certifications</h6>
-                      <ul className="certifications-list">
-                        {selectedSkill.certifications.map((cert, idx) => (
-                          <li key={idx}>
-                            <i className="fas fa-certificate me-2"></i>
-                            {cert}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {selectedSkill.achievements.length > 0 && (
-                    <div className="mb-4">
-                      <h6>Key Achievements</h6>
-                      <ul className="achievements-list">
-                        {selectedSkill.achievements.map((achievement, idx) => (
-                          <li key={idx}>
-                            <i className="fas fa-trophy me-2"></i>
-                            {achievement}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
