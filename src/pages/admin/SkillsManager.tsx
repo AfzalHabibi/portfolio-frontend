@@ -4,10 +4,13 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
+import '../../styles/skillsManager.css'
 import {
   fetchSkills,
   createSkillDirect,
   deleteSkillItem,
+  toggleSkillActive,
+  toggleSkillFeatured,
   clearError
 } from '../../store/slices/skillSlice'
 import { RootState, AppDispatch } from '../../store/store'
@@ -32,6 +35,8 @@ interface SkillFormData {
   achievements: string
   icon?: string
   color?: string
+  isActive?: boolean
+  isFeatured?: boolean
 }
 
 const SkillsManager: React.FC = () => {
@@ -53,11 +58,13 @@ const SkillsManager: React.FC = () => {
     best_practices: '',
     achievements: '',
     icon: '',
-    color: '#3B82F6'
+    color: '#3B82F6',
+    isActive: true,
+    isFeatured: false
   })
 
   useEffect(() => {
-    dispatch(fetchSkills(false))
+    dispatch(fetchSkills(true)) // Include inactive skills in admin
   }, [dispatch])
 
   useEffect(() => {
@@ -81,16 +88,18 @@ const SkillsManager: React.FC = () => {
       best_practices: '',
       achievements: '',
       icon: '',
-      color: '#3B82F6'
+      color: '#3B82F6',
+      isActive: true,
+      isFeatured: false
     })
     setEditingSkill(null)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+    const { name, value, type } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }))
   }
 
@@ -108,7 +117,9 @@ const SkillsManager: React.FC = () => {
       best_practices: formData.best_practices ? formData.best_practices.split(',').map(b => b.trim()).filter(b => b) : [],
       achievements: formData.achievements ? formData.achievements.split(',').map(a => a.trim()).filter(a => a) : [],
       icon: formData.icon || undefined,
-      color: formData.color || undefined
+      color: formData.color || undefined,
+      isActive: formData.isActive,
+      isFeatured: formData.isFeatured
     }
   }
 
@@ -127,7 +138,7 @@ const SkillsManager: React.FC = () => {
       if (createSkillDirect.fulfilled.match(resultAction)) {
         toast.success('Skill created successfully!')
         closeModal()
-        dispatch(fetchSkills(false)) // Refresh the skills list
+        dispatch(fetchSkills(true)) // Refresh the skills list including inactive
       } else {
         toast.error('Failed to create skill')
       }
@@ -154,7 +165,7 @@ const SkillsManager: React.FC = () => {
         
         if (deleteSkillItem.fulfilled.match(resultAction)) {
           toast.success('Skill deleted successfully!')
-          dispatch(fetchSkills(false)) // Refresh the skills list
+          dispatch(fetchSkills(true)) // Refresh the skills list including inactive
         } else {
           toast.error('Failed to delete skill')
         }
@@ -162,6 +173,38 @@ const SkillsManager: React.FC = () => {
         console.error('Error deleting skill:', error)
         toast.error('An error occurred while deleting the skill')
       }
+    }
+  }
+
+  const handleToggleSkillActive = async (categoryId: string, itemId: string, skillName: string, currentStatus: boolean) => {
+    try {
+      const resultAction = await dispatch(toggleSkillActive({ categoryId, itemId }))
+      
+      if (toggleSkillActive.fulfilled.match(resultAction)) {
+        toast.success(`Skill "${skillName}" ${currentStatus ? 'deactivated' : 'activated'} successfully!`)
+        dispatch(fetchSkills(true)) // Refresh the skills list including inactive
+      } else {
+        toast.error('Failed to toggle skill status')
+      }
+    } catch (error) {
+      console.error('Error toggling skill status:', error)
+      toast.error('An error occurred while toggling skill status')
+    }
+  }
+
+  const handleToggleSkillFeatured = async (categoryId: string, categoryName: string, currentStatus: boolean) => {
+    try {
+      const resultAction = await dispatch(toggleSkillFeatured(categoryId))
+      
+      if (toggleSkillFeatured.fulfilled.match(resultAction)) {
+        toast.success(`Category "${categoryName}" ${currentStatus ? 'removed from featured' : 'marked as featured'} successfully!`)
+        dispatch(fetchSkills(true)) // Refresh the skills list including inactive
+      } else {
+        toast.error('Failed to toggle featured status')
+      }
+    } catch (error) {
+      console.error('Error toggling featured status:', error)
+      toast.error('An error occurred while toggling featured status')
     }
   }
 
@@ -186,7 +229,9 @@ const SkillsManager: React.FC = () => {
           best_practices: item.best_practices?.join(', ') || '',
           achievements: item.achievements?.join(', ') || '',
           icon: item.icon || '',
-          color: item.color || '#3B82F6'
+          color: item.color || '#3B82F6',
+          isActive: item.isActive !== false,
+          isFeatured: skill?.isFeatured || false
         })
       }
     } else {
@@ -246,6 +291,8 @@ const SkillsManager: React.FC = () => {
               <th>Category</th>
               <th>Proficiency</th>
               <th>Experience</th>
+              <th>Active</th>
+              <th>Featured</th>
               <th>
                 <div className="action-cell">
                   Actions
@@ -256,11 +303,47 @@ const SkillsManager: React.FC = () => {
           <tbody>
             {skills.flatMap((skill) =>
               skill.items?.map((item) => (
-                <tr key={`${skill.id || skill._id}-${item._id}`}>
-                  <td>{item.name}</td>
+                <tr 
+                  key={`${skill.id || skill._id}-${item._id}`}
+                  className={item.isActive === false ? 'inactive-skill' : ''}
+                >
+                  <td>
+                    <span className={item.isActive === false ? 'skill-name' : ''}>
+                      {item.name}
+                    </span>
+                  </td>
                   <td>{skill.category}</td>
                   <td>{item.proficiency}</td>
                   <td>{item.experience}</td>
+                  <td>
+                    <button
+                      onClick={() => handleToggleSkillActive(
+                        skill.id || skill._id || '', 
+                        item._id || '', 
+                        item.name,
+                        item.isActive !== false
+                      )}
+                      className={`toggle-button ${item.isActive !== false ? 'active' : 'inactive'}`}
+                      title={`${item.isActive !== false ? 'Deactivate' : 'Activate'} skill`}
+                      disabled={actionLoading}
+                    >
+                      {item.isActive !== false ? 'Active' : 'Inactive'}
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => handleToggleSkillFeatured(
+                        skill.id || skill._id || '', 
+                        skill.category,
+                        skill.isFeatured || false
+                      )}
+                      className={`toggle-button ${skill.isFeatured ? 'featured' : 'not-featured'}`}
+                      title={`${skill.isFeatured ? 'Remove from featured' : 'Mark as featured'}`}
+                      disabled={actionLoading}
+                    >
+                      {skill.isFeatured ? 'Featured' : 'Not Featured'}
+                    </button>
+                  </td>
                   <td>
                     <div className="action-cell">
                       <button
@@ -325,8 +408,8 @@ const SkillsManager: React.FC = () => {
             {/* Essential Information */}
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="row">
+                <div className='col-md-6'>
                   <label htmlFor="name" className="form-label">
                     Skill Name *
                   </label>
@@ -342,7 +425,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="category" className="form-label">
                     Category *
                   </label>
@@ -358,7 +441,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="proficiency" className="form-label">
                     Proficiency Level *
                   </label>
@@ -377,7 +460,7 @@ const SkillsManager: React.FC = () => {
                   </select>
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="experience" className="form-label">
                     Experience *
                   </label>
@@ -394,7 +477,7 @@ const SkillsManager: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-4">
+              <div className="col-md-12">
                 <label htmlFor="description" className="form-label">
                   Description *
                 </label>
@@ -414,8 +497,8 @@ const SkillsManager: React.FC = () => {
             {/* Additional Details */}
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Additional Details (Optional)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="row">
+                <div className='col-md-6'>
                   <label htmlFor="keywords" className="form-label">
                     Keywords
                   </label>
@@ -430,7 +513,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="projects" className="form-label">
                     Projects
                   </label>
@@ -445,7 +528,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="certifications" className="form-label">
                     Certifications
                   </label>
@@ -460,7 +543,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="tools_used" className="form-label">
                     Tools Used
                   </label>
@@ -480,8 +563,8 @@ const SkillsManager: React.FC = () => {
             {/* Professional Details */}
             <div className="bg-green-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Professional Details (Optional)</h3>
-              <div className="space-y-4">
-                <div>
+              <div className="row">
+                <div className='col-md-6'>
                   <label htmlFor="best_practices" className="form-label">
                     Best Practices
                   </label>
@@ -496,7 +579,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-6'>
                   <label htmlFor="achievements" className="form-label">
                     Achievements
                   </label>
@@ -516,8 +599,8 @@ const SkillsManager: React.FC = () => {
             {/* Visual Settings */}
             <div className="bg-purple-50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Visual Settings (Optional)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="row">
+                <div className='col-md-10'>
                   <label htmlFor="icon" className="form-label">
                     Icon URL
                   </label>
@@ -532,7 +615,7 @@ const SkillsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className='col-md-2'>
                   <label htmlFor="color" className="form-label">
                     Color
                   </label>
@@ -542,14 +625,47 @@ const SkillsManager: React.FC = () => {
                     name="color"
                     value={formData.color}
                     onChange={handleInputChange}
-                    className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
             </div>
 
+            {/* Status Settings */}
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Status Settings</h3>
+              <div className="row">
+                <div className="d-flex align-items-center gap-1 col-md-6">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    checked={formData.isActive || false}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                    Active (visible to public)
+                  </label>
+                </div>
+
+                <div className="d-flex align-items-center gap-1 col-md-6">
+                  <input
+                    type="checkbox"
+                    id="isFeatured"
+                    name="isFeatured"
+                    checked={formData.isFeatured || false}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isFeatured" className="ml-2 block text-sm text-gray-900">
+                    Featured (show in featured section)
+                  </label>
+                </div>
+              </div>
+            </div>
+
             {/* Submit Buttons */}
-            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <div className="d-flex justify-content-end gap-2 pt-6 border-t border-gray-200">
               <button
                 type="button"
                 onClick={closeModal}
@@ -560,7 +676,7 @@ const SkillsManager: React.FC = () => {
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                className="custom-primary-btn"
                 disabled={actionLoading}
               >
                 {actionLoading ? (

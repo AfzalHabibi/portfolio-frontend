@@ -852,17 +852,6 @@ const ProjectCard = React.memo<{
           {project.description}
         </p>
         
-        {/* Image Gallery Preview */}
-        {galleryImages.length > 1 && (
-          <div className="project-media-preview">
-            <ImageGallery
-              images={galleryImages}
-              maxPreviewCount={4}
-              className="card-gallery"
-            />
-          </div>
-        )}
-        
         <div className="project-tech-tags">
           {project.technologies?.slice(0, 3).map((tech, index) => (
             <span key={index} className="tech-tag">

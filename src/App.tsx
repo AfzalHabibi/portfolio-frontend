@@ -18,6 +18,8 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import Home from "./pages/public_portfolio/Home"
 import Projects from "./pages/public_portfolio/Projects"
 import ProjectDetail from "./pages/public_portfolio/ProjectDetail"
+import Skills from "./pages/public_portfolio/Skills"
+import SkillDetail from "./pages/public_portfolio/SkillDetail"
 import Contact from "./pages/public_portfolio/Contact"
 import Login from "./pages/admin/Login"
 import Dashboard from "./pages/admin/Dashboard"
@@ -55,6 +57,8 @@ const App: React.FC = () => {
                       <Route path="/" element={<Home />} />
                       <Route path="/projects" element={<Projects />} />
                       <Route path="/projects/:id" element={<ProjectDetail />} />
+                      <Route path="/skills" element={<Skills />} />
+                      <Route path="/skills/:id" element={<SkillDetail />} />
                       <Route path="/contact" element={<Contact />} />
                     </Routes>
                   </main>

@@ -47,6 +47,7 @@ export interface Skill {
   icon?: string;
   color?: string;
   isActive?: boolean;
+  isFeatured?: boolean;
   displayOrder?: number;
   items: SkillItem[];
   createdAt?: string;
@@ -59,6 +60,17 @@ export interface CreateSkillData {
   icon?: string;
   color?: string;
   items?: Omit<SkillItem, '_id'>[];
+}
+
+export interface DirectSkillData {
+  category: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
+  displayOrder?: number;
+  items: Omit<SkillItem, '_id'>[];
 }
 
 export interface UpdateSkillData extends Partial<CreateSkillData> {

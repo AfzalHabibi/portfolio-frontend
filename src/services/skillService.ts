@@ -21,6 +21,8 @@ export interface DirectSkillData {
   endorsements?: string[];
   icon?: string;
   color?: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
 }
 
 class SkillService {
@@ -137,6 +139,43 @@ class SkillService {
       }));
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to reorder skills');
+    }
+  }
+
+  async toggleSkillActive(categoryId: string, itemId: string): Promise<Skill> {
+    try {
+      // First get current state
+      const currentSkill = await this.getSkillById(categoryId);
+      const currentItem = currentSkill.items.find(item => item._id === itemId);
+      const newActiveState = !(currentItem?.isActive !== false);
+      
+      const response = await api.put(`/skills/${categoryId}/items/${itemId}`, { 
+        isActive: newActiveState
+      });
+      return {
+        ...response.data.skill,
+        id: response.data.skill._id,
+      };
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to toggle skill active status');
+    }
+  }
+
+  async toggleSkillFeatured(categoryId: string): Promise<Skill> {
+    try {
+      // First get current state
+      const currentSkill = await this.getSkillById(categoryId);
+      const newFeaturedState = !currentSkill.isFeatured;
+      
+      const response = await api.put(`/skills/${categoryId}`, { 
+        isFeatured: newFeaturedState
+      });
+      return {
+        ...response.data.skill,
+        id: response.data.skill._id,
+      };
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to toggle skill featured status');
     }
   }
 }

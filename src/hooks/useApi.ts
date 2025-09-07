@@ -17,6 +17,18 @@ import {
   clearError as clearSettingsError,
 } from '../store/slices/settingsSlice';
 import {
+  fetchSkills,
+  fetchSkillById,
+  createSkill,
+  updateSkill,
+  deleteSkill,
+  addSkillItem,
+  updateSkillItem,
+  deleteSkillItem,
+  setSelectedSkill,
+  clearError as clearSkillsError,
+} from '../store/slices/skillSlice';
+import {
   loginUser,
   registerUser,
   logout,
@@ -25,7 +37,7 @@ import {
 } from '../store/slices/authSlice';
 import { CreateProjectData, CreateProjectWithFilesData } from '../services/projectService';
 import { LoginCredentials, RegisterCredentials } from '../services/authService';
-import { SiteSettings } from '../types';
+import { SiteSettings, CreateSkillData, DirectSkillData, UpdateSkillData, SkillItem } from '../types';
 
 // Projects hook
 export const useProjects = () => {
@@ -162,5 +174,71 @@ export const useAuth = () => {
     logoutUser,
     clearAuthErrorMessage,
     initAuth,
+  };
+};
+
+// Skills hook
+export const useSkills = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { skills, loading, error, selectedSkill, actionLoading } = useSelector(
+    (state: RootState) => state.skills
+  );
+
+  const loadSkills = (includeInactive: boolean = false) => {
+    dispatch(fetchSkills(includeInactive));
+  };
+
+  const loadSkillById = (id: string) => {
+    dispatch(fetchSkillById(id));
+  };
+
+  const addSkill = (skillData: CreateSkillData) => {
+    return dispatch(createSkill(skillData));
+  };
+
+  const updateSkillById = (id: string, skillData: UpdateSkillData) => {
+    return dispatch(updateSkill({ id, skillData }));
+  };
+
+  const deleteSkillById = (id: string) => {
+    return dispatch(deleteSkill(id));
+  };
+
+  const addItemToSkill = (categoryId: string, itemData: Omit<SkillItem, '_id'>) => {
+    return dispatch(addSkillItem({ categoryId, itemData }));
+  };
+
+  const updateSkillItemById = (categoryId: string, itemId: string, itemData: Partial<SkillItem>) => {
+    return dispatch(updateSkillItem({ categoryId, itemId, itemData }));
+  };
+
+  const deleteSkillItemById = (categoryId: string, itemId: string) => {
+    return dispatch(deleteSkillItem({ categoryId, itemId }));
+  };
+
+  const selectSkill = (skill: any) => {
+    dispatch(setSelectedSkill(skill));
+  };
+
+  const clearSkillError = () => {
+    dispatch(clearSkillsError());
+  };
+
+  return {
+    skills,
+    loading,
+    error,
+    selectedSkill,
+    actionLoading,
+    loadSkills,
+    loadSkillById,
+    addSkill,
+    updateSkillById,
+    deleteSkillById,
+    addItemToSkill,
+    updateSkillItemById,
+    deleteSkillItemById,
+    selectSkill,
+    clearError: clearSkillError,
   };
 };

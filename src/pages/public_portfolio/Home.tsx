@@ -8,7 +8,7 @@ import ProjectCard from "../../components/ProjectCard"
 import Loader from "../../components/Loader"
 import AnimatedText from "../../components/AnimatedText"
 import TestimonialSlider from "../../components/TestimonialSlider"
-import SkillsComponent from "../../components/SkillsComponent"
+import FeaturedSkillsComponent from "../../components/FeaturedSkillsComponent"
 
 const Home: React.FC = () => {
   const [loading, setLoading] = useState(true)
@@ -154,7 +154,7 @@ const Home: React.FC = () => {
           <p className="section-subtitle text-center mb-5">
             Comprehensive overview of my technical skills, experience levels, and professional accomplishments
           </p>
-          <SkillsComponent showAllDetails={false} maxSkillsToShow={8} />
+          <FeaturedSkillsComponent />
         </div>
       </section>
 

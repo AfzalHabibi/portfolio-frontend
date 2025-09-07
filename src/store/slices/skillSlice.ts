@@ -138,6 +138,28 @@ export const reorderSkills = createAsyncThunk(
   }
 );
 
+export const toggleSkillActive = createAsyncThunk(
+  'skills/toggleSkillActive',
+  async ({ categoryId, itemId }: { categoryId: string; itemId: string }, { rejectWithValue }) => {
+    try {
+      return await skillService.toggleSkillActive(categoryId, itemId);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const toggleSkillFeatured = createAsyncThunk(
+  'skills/toggleSkillFeatured',
+  async (categoryId: string, { rejectWithValue }) => {
+    try {
+      return await skillService.toggleSkillFeatured(categoryId);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const skillSlice = createSlice({
   name: 'skills',
   initialState,
@@ -334,6 +356,48 @@ const skillSlice = createSlice({
         state.skills = action.payload;
       })
       .addCase(reorderSkills.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Toggle skill active
+    builder
+      .addCase(toggleSkillActive.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(toggleSkillActive.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const index = state.skills.findIndex(skill => skill.id === action.payload.id || skill._id === action.payload._id);
+        if (index !== -1) {
+          state.skills[index] = action.payload;
+        }
+        if (state.selectedSkill && (state.selectedSkill.id === action.payload.id || state.selectedSkill._id === action.payload._id)) {
+          state.selectedSkill = action.payload;
+        }
+      })
+      .addCase(toggleSkillActive.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Toggle skill featured
+    builder
+      .addCase(toggleSkillFeatured.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
+      .addCase(toggleSkillFeatured.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const index = state.skills.findIndex(skill => skill.id === action.payload.id || skill._id === action.payload._id);
+        if (index !== -1) {
+          state.skills[index] = action.payload;
+        }
+        if (state.selectedSkill && (state.selectedSkill.id === action.payload.id || state.selectedSkill._id === action.payload._id)) {
+          state.selectedSkill = action.payload;
+        }
+      })
+      .addCase(toggleSkillFeatured.rejected, (state, action) => {
         state.actionLoading = false;
         state.error = action.payload as string;
       });

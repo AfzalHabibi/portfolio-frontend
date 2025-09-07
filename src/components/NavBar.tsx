@@ -59,6 +59,15 @@ const NavBar: React.FC = () => {
             </li>
             <li className="nav-item">
               <Link
+                className={`nav-link ${isActive("/skills") ? "active" : ""}`}
+                to="/skills"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Skills
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link
                 className={`nav-link ${isActive("/contact") ? "active" : ""}`}
                 to="/contact"
                 onClick={() => setIsMenuOpen(false)}
